@@ -1,10 +1,10 @@
 import { User } from '@baseline/types/user';
 import { RequestHandler } from './request-handler';
 
-export const getUser = async (requestHandler: RequestHandler, userId: string): Promise<User> => {
+export const getUser = async (requestHandler: RequestHandler, userSub: string): Promise<User> => {
   const response = await requestHandler.request<User>({
     method: 'GET',
-    url: `user/${userId}`,
+    url: `user/${userSub}`,
     hasAuthentication: true,
   });
   if ('data' in response) {
@@ -25,10 +25,10 @@ export const getAllUsers = async (requestHandler: RequestHandler): Promise<User[
   throw response;
 };
 
-export const deleteUser = async (requestHandler: RequestHandler, userId: string): Promise<boolean> => {
+export const deleteUser = async (requestHandler: RequestHandler, userSub: string): Promise<boolean> => {
   const response = await requestHandler.request<boolean>({
     method: 'DELETE',
-    url: `user/${userId}`,
+    url: `user/${userSub}`,
     hasAuthentication: true,
   });
   if ('data' in response) {

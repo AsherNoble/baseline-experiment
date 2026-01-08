@@ -16,9 +16,11 @@ app.post('/user', [
   isAdmin,
   async (req: RequestContext, res: Response) => {
     try {
-      const { username, email, password } = req.body as User;
+      const { userSub, email } = req.body as User;
       const userData: Partial<User> = {
-        username, email, password,
+        userSub,
+        email,
+        createdAt: new Date().toISOString(),
       };
       const user = await userService.create(userData);
       res.json(userMapper(user));
@@ -34,9 +36,10 @@ app.patch('/user', [
   isAdmin,
   async (req: RequestContext, res: Response) => {
     try {
-      const { userId, username, email, password } = req.body as User;
+      const { userSub, email } = req.body as User;
       const userData: Partial<User> = {
-        userId, username, email, password
+        userSub,
+        email,
       };
       const user = await userService.update(userData);
       res.json(userMapper(user));
@@ -50,12 +53,12 @@ app.patch('/user', [
   },
 ]);
 
-app.delete('/user/:userId', [
+app.delete('/user/:userSub', [
   isAdmin,
   async (req: RequestContext, res: Response) => {
     try {
-      const userId = req.params.userId;
-      await userService.delete(userId);
+      const userSub = req.params.userSub;
+      await userService.delete(userSub);
       res.status(200);
       res.send();
     } catch (error) {
@@ -85,11 +88,11 @@ app.get('/user/list', [
   },
 ]);
 
-app.get('/user/:userId', [
+app.get('/user/:userSub', [
   isAdmin,
   async (req: RequestContext, res: Response) => {
     try {
-      const user = await userService.get(req.params.userId);
+      const user = await userService.get(req.params.userSub);
       res.json(userMapper(user));
     } catch (error) {
       const message = getErrorMessage(error);
