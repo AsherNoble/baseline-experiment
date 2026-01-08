@@ -47,6 +47,9 @@ custom:
           - table: ${env:APP_NAME}-${opt:stage}-user
             sources:
               - ./src/baseblocks/user/user.seed.json
+          - table: ${env:APP_NAME}-${opt:stage}-portfolio
+            sources:
+              - ./src/baseblocks/portfolio/portfolio.seed.json
 package:
   individually: true
 provider:
@@ -93,6 +96,8 @@ provider:
             - !Sub ${adminTable.Arn}/index/*
             - !Sub ${userTable.Arn}
             - !Sub ${userTable.Arn}/index/*
+            - !Sub ${portfolioTable.Arn}
+            - !Sub ${portfolioTable.Arn}/index/*
         - Effect: Allow
           Action:
             - cognito-idp:AdminCreateUser
@@ -104,6 +109,8 @@ resources:
   - ${file(./src/baseblocks/cognito/cognito-resources.yml)}
   - ${file(./src/baseblocks/admin/admin-dynamodb.yml)}
   - ${file(./src/baseblocks/user/user-dynamodb.yml)}
+  - ${file(./src/baseblocks/portfolio/portfolio-dynamodb.yml)}
 functions:
   - ${file(./src/baseblocks/admin/admin-functions.yml)}
   - ${file(./src/baseblocks/user/user-functions.yml)}
+  - ${file(./src/baseblocks/portfolio/portfolio-functions.yml)}

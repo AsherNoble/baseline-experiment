@@ -1,0 +1,16 @@
+Resources:
+  portfolioTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: ${self:custom.deletionPolicy.${opt:stage}}
+    UpdateReplacePolicy: ${self:custom.updatePolicy.${opt:stage}}
+    Properties:
+      TableName: ${env:APP_NAME}-${opt:stage}-portfolio
+      AttributeDefinitions:
+        - AttributeName: portfolioId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: portfolioId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification: 
+        PointInTimeRecoveryEnabled: true

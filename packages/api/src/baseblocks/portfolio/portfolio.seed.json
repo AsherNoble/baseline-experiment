@@ -1,0 +1,32 @@
+[
+  {
+    "portfolioId": "001",
+    "userId": "001",
+    "cash": 5000.00,
+    "totalValue": 25000.00
+  },
+  {
+    "portfolioId": "002",
+    "userId": "002",
+    "cash": 12500.50,
+    "totalValue": 87500.75
+  },
+  {
+    "portfolioId": "003",
+    "userId": "003",
+    "cash": 250.00,
+    "totalValue": 3200.00
+  },
+  {
+    "portfolioId": "004",
+    "userId": "004",
+    "cash": 45000.00,
+    "totalValue": 152000.00
+  },
+  {
+    "portfolioId": "005",
+    "userId": "005",
+    "cash": 1000.00,
+    "totalValue": 10500.00
+  }
+]
