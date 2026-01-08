@@ -10,6 +10,7 @@ import {
 import About from './pages/About';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import Stocks from './pages/Stocks';
 
 async function dashboardLoader() {
   // Retry a few times to handle Amplify initialization timing
@@ -43,7 +44,10 @@ const router = createBrowserRouter([
     id: 'protected',
     path: '/',
     Component: Outlet,
-    children: [{ path: '/dashboard', element: <Dashboard />, loader: dashboardLoader }],
+    children: [
+      { path: '/dashboard', element: <Dashboard />, loader: dashboardLoader },
+      { path: '/stocks', element: <Stocks />, loader: dashboardLoader },
+    ],
   },
 ]);
 

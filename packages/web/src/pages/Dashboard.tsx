@@ -178,9 +178,27 @@ const Dashboard = (): JSX.Element => {
           </div>
         )}
 
+        <Link
+          to="/stocks"
+          style={{
+            display: 'block',
+            marginTop: '2rem',
+            padding: '1rem',
+            border: '1px solid #007bff',
+            borderRadius: '8px',
+            backgroundColor: '#e7f1ff',
+            textAlign: 'center',
+            textDecoration: 'none',
+            color: '#007bff',
+            fontWeight: 500,
+          }}
+        >
+          Browse & Trade Stocks &rarr;
+        </Link>
+
         <div
           style={{
-            marginTop: '2rem',
+            marginTop: '1rem',
             padding: '1rem',
             border: '1px solid #eee',
             borderRadius: '8px',
