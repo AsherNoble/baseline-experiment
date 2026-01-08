@@ -114,3 +114,4 @@ functions:
   - ${file(./src/baseblocks/admin/admin-functions.yml)}
   - ${file(./src/baseblocks/user/user-functions.yml)}
   - ${file(./src/baseblocks/portfolio/portfolio-functions.yml)}
+  - ${file(./src/baseblocks/stock/stock-functions.yml)}
