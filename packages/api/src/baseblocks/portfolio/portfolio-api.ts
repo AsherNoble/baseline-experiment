@@ -39,7 +39,7 @@ app.get('/portfolio/me', [
       if (!portfolio) {
         const newPortfolio: Partial<Portfolio> = {
           userId: userSub,
-          cash: 0,
+          cash: 50000,
           totalValue: 0,
         };
         portfolio = await portfolioService.create(newPortfolio);
