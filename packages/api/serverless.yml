@@ -44,6 +44,9 @@ custom:
           - table: ${env:APP_NAME}-${opt:stage}-admin
             sources:
               - ./src/baseblocks/admin/admin.seed.json
+          - table: ${env:APP_NAME}-${opt:stage}-user
+            sources:
+              - ./src/baseblocks/user/user.seed.json
           - table: ${env:APP_NAME}-${opt:stage}-portfolio
             sources:
               - ./src/baseblocks/portfolio/portfolio.seed.json
@@ -91,6 +94,8 @@ provider:
           Resource:
             - !Sub ${adminTable.Arn}
             - !Sub ${adminTable.Arn}/index/*
+            - !Sub ${userTable.Arn}
+            - !Sub ${userTable.Arn}/index/*
             - !Sub ${portfolioTable.Arn}
             - !Sub ${portfolioTable.Arn}/index/*
         - Effect: Allow
@@ -103,7 +108,9 @@ provider:
 resources:
   - ${file(./src/baseblocks/cognito/cognito-resources.yml)}
   - ${file(./src/baseblocks/admin/admin-dynamodb.yml)}
+  - ${file(./src/baseblocks/user/user-dynamodb.yml)}
   - ${file(./src/baseblocks/portfolio/portfolio-dynamodb.yml)}
 functions:
   - ${file(./src/baseblocks/admin/admin-functions.yml)}
+  - ${file(./src/baseblocks/user/user-functions.yml)}
   - ${file(./src/baseblocks/portfolio/portfolio-functions.yml)}

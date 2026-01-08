@@ -34,7 +34,9 @@ fi
 # AUTHORIZER is a value detected by serverless offline https://github.com/dherault/serverless-offline#remote-authorizers
 # This user is and can be linked in local seed data so that there is user specific relationships.
 # Restart the API when this is changed.
-export AUTHORIZER='{"claims":{"email":"example@devika.com", "sub":"ed805890-d66b-4126-a5d9-0b22e70fce80"}}'
+# To test as ADMIN: use sub "ed805890-d66b-4126-a5d9-0b22e70fce80" (in admin seed data)
+# To test as NON-ADMIN USER: use sub "00000000-0000-0000-0000-000000000001" (not in admin seed data)
+export AUTHORIZER='{"claims":{"email":"testuser@example.com", "sub":"00000000-0000-0000-0000-000000000001"}}'
 
 # Required to install/use local DynamoDB
 pnpm run install:dynamodb
