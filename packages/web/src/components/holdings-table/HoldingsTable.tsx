@@ -7,6 +7,7 @@ interface HoldingsTableProps {
   holdings: Holding[];
   stockQuotes: Map<string, StockQuote>;
   loading?: boolean;
+  onSell?: (holding: Holding, stockQuote: StockQuote) => void;
 }
 
 const formatCurrency = (value: number): string => {
@@ -20,6 +21,7 @@ const HoldingsTable = ({
   holdings,
   stockQuotes,
   loading = false,
+  onSell,
 }: HoldingsTableProps): JSX.Element => {
   if (loading) {
     return <div className={styles.loading}>Loading holdings...</div>;
@@ -46,6 +48,7 @@ const HoldingsTable = ({
             <th className={styles.alignRight}>Current Price</th>
             <th className={styles.alignRight}>Market Value</th>
             <th className={styles.alignRight}>Gain/Loss</th>
+            {onSell && <th className={styles.alignCenter}>Action</th>}
           </tr>
         </thead>
         <tbody>
@@ -96,6 +99,19 @@ const HoldingsTable = ({
                     '—'
                   )}
                 </td>
+                {onSell && (
+                  <td className={styles.alignCenter}>
+                    <button
+                      className={styles.sellButton}
+                      onClick={() =>
+                        currentQuote && onSell(holding, currentQuote)
+                      }
+                      disabled={!currentQuote}
+                    >
+                      Sell
+                    </button>
+                  </td>
+                )}
               </tr>
             );
           })}
@@ -156,6 +172,7 @@ const HoldingsTable = ({
                 );
               })()}
             </td>
+            {onSell && <td></td>}
           </tr>
         </tfoot>
       </table>
