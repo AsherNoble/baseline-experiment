@@ -1,0 +1,29 @@
+Resources:
+  transactionTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: ${self:custom.deletionPolicy.${opt:stage}}
+    UpdateReplacePolicy: ${self:custom.updatePolicy.${opt:stage}}
+    Properties:
+      TableName: ${env:APP_NAME}-${opt:stage}-transaction
+      AttributeDefinitions:
+        - AttributeName: transactionId
+          AttributeType: S
+        - AttributeName: portfolioId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: transactionId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: portfolioId-timestamp-index
+          KeySchema:
+            - AttributeName: portfolioId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true

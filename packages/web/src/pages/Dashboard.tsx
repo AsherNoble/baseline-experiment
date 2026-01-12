@@ -9,7 +9,12 @@ import {
 } from '@baseline/client-api/request-handler';
 import { getMyPortfolio, MyPortfolioResponse } from '@baseline/client-api/portfolio';
 import { Portfolio } from '@baseline/types/portfolio';
+import { Holding } from '@baseline/types/holding';
+import { StockQuote } from '@baseline/types/stock';
+import { getMyHoldings } from '@baseline/client-api/holding';
+import { getMultipleStockQuotes } from '@baseline/client-api/stock';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
+import HoldingsTable from '../components/holdings-table/HoldingsTable';
 
 interface DashboardLoaderData {
   userId: string;
@@ -22,7 +27,12 @@ const Dashboard = (): JSX.Element => {
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(
+    new Map(),
+  );
   const [loading, setLoading] = useState(true);
+  const [holdingsLoading, setHoldingsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,11 +53,29 @@ const Dashboard = (): JSX.Element => {
         const response: MyPortfolioResponse = await getMyPortfolio(getRequestHandler());
         setIsAdmin(response.isAdmin);
         setPortfolio(response.portfolio);
+
+        // Fetch holdings if not admin
+        if (!response.isAdmin && response.portfolio) {
+          const holdingsData = await getMyHoldings(getRequestHandler());
+          setHoldings(holdingsData);
+
+          // Fetch current prices for holdings
+          if (holdingsData.length > 0) {
+            const symbols = holdingsData.map((h) => h.symbol);
+            const quotes = await getMultipleStockQuotes(
+              getRequestHandler(),
+              symbols,
+            );
+            const quotesMap = new Map(quotes.map((q) => [q.symbol, q]));
+            setStockQuotes(quotesMap);
+          }
+        }
       } catch (err) {
         console.error('Failed to fetch portfolio:', err);
         setError('Failed to load portfolio data');
       } finally {
         setLoading(false);
+        setHoldingsLoading(false);
       }
     };
 
@@ -151,7 +179,7 @@ const Dashboard = (): JSX.Element => {
                   Cash Balance
                 </p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  ${portfolio.cash.toFixed(2)}
+                  ${portfolio.cash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
@@ -159,9 +187,19 @@ const Dashboard = (): JSX.Element => {
                   Total Value
                 </p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  ${portfolio.totalValue.toFixed(2)}
+                  ${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
+            </div>
+
+            {/* Holdings section */}
+            <div style={{ marginTop: '2rem' }}>
+              <h2 style={{ marginBottom: '1rem' }}>Your Holdings</h2>
+              <HoldingsTable
+                holdings={holdings}
+                stockQuotes={stockQuotes}
+                loading={holdingsLoading}
+              />
             </div>
           </div>
         ) : (

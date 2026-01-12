@@ -6,10 +6,13 @@ import {
   createRequestHandler,
   getRequestHandler,
 } from '@baseline/client-api/request-handler';
-import { getMultipleStockQuotes } from '@baseline/client-api/stock';
+import { getMultipleStockQuotes, buyStock } from '@baseline/client-api/stock';
+import { getMyPortfolio } from '@baseline/client-api/portfolio';
 import { StockQuote } from '@baseline/types/stock';
+import { Portfolio } from '@baseline/types/portfolio';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
 import StockList from '../components/stock-list/StockList';
+import BuyModal from '../components/buy-modal/BuyModal';
 
 // ASX 20 stocks - the largest companies on the Australian Stock Exchange
 const ASX_20_SYMBOLS = [
@@ -39,6 +42,9 @@ const Stocks = (): JSX.Element => {
   const [stocks, setStocks] = useState<StockQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStock, setSelectedStock] = useState<StockQuote | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -59,6 +65,12 @@ const Stocks = (): JSX.Element => {
         // Sort by market cap (approximated by price * volume for now)
         quotes.sort((a, b) => b.regularMarketPrice - a.regularMarketPrice);
         setStocks(quotes);
+
+        // Fetch portfolio for buy functionality
+        const portfolioData = await getMyPortfolio(getRequestHandler());
+        if (!portfolioData.isAdmin && portfolioData.portfolio) {
+          setPortfolio(portfolioData.portfolio);
+        }
       } catch (err) {
         console.error('Failed to fetch stocks:', err);
         setError('Failed to load stock data. Please try again later.');
@@ -71,8 +83,31 @@ const Stocks = (): JSX.Element => {
   }, []);
 
   const handleBuy = (stock: StockQuote) => {
-    // TODO: Implement buy functionality
-    alert(`Buy functionality coming soon for ${stock.symbol}`);
+    if (!portfolio) {
+      alert('Portfolio not found. Please try again.');
+      return;
+    }
+    setSelectedStock(stock);
+    setModalOpen(true);
+  };
+
+  const handleConfirmPurchase = async (symbol: string, quantity: number) => {
+    try {
+      const result = await buyStock(getRequestHandler(), { symbol, quantity });
+
+      // Update local portfolio state
+      setPortfolio(result.portfolio);
+
+      // Show success message
+      alert(`Successfully purchased ${quantity} shares of ${symbol}!`);
+
+      // Close modal
+      setModalOpen(false);
+      setSelectedStock(null);
+    } catch (error) {
+      console.error('Purchase failed:', error);
+      throw error; // Let modal handle error display
+    }
   };
 
   return (
@@ -155,6 +190,20 @@ const Stocks = (): JSX.Element => {
           <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
           This is a simulation game and does not involve real money.
         </div>
+
+        {/* Buy Modal */}
+        {selectedStock && portfolio && (
+          <BuyModal
+            stock={selectedStock}
+            portfolio={portfolio}
+            isOpen={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              setSelectedStock(null);
+            }}
+            onConfirm={handleConfirmPurchase}
+          />
+        )}
       </div>
     </PageWrapper>
   );
