@@ -12,9 +12,10 @@ import { Portfolio } from '@baseline/types/portfolio';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
 import { getMyHoldings } from '@baseline/client-api/holding';
-import { getMultipleStockQuotes } from '@baseline/client-api/stock';
+import { getMultipleStockQuotes, sellStock } from '@baseline/client-api/stock';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
+import SellModal from '../components/sell-modal/SellModal';
 
 interface DashboardLoaderData {
   userId: string;
@@ -34,6 +35,9 @@ const Dashboard = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [holdingsLoading, setHoldingsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
+  const [selectedQuote, setSelectedQuote] = useState<StockQuote | null>(null);
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -84,6 +88,49 @@ const Dashboard = (): JSX.Element => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleSell = (holding: Holding, stockQuote: StockQuote) => {
+    setSelectedHolding(holding);
+    setSelectedQuote(stockQuote);
+    setIsSellModalOpen(true);
+  };
+
+  const handleSellConfirm = async (symbol: string, quantity: number) => {
+    try {
+      const result = await sellStock(getRequestHandler(), { symbol, quantity });
+
+      // Update local portfolio state
+      setPortfolio(result.portfolio);
+
+      // Refresh holdings
+      const holdingsData = await getMyHoldings(getRequestHandler());
+      setHoldings(holdingsData);
+
+      // Refresh stock quotes
+      if (holdingsData.length > 0) {
+        const symbols = holdingsData.map((h) => h.symbol);
+        const quotes = await getMultipleStockQuotes(
+          getRequestHandler(),
+          symbols,
+        );
+        const quotesMap = new Map(quotes.map((q) => [q.symbol, q]));
+        setStockQuotes(quotesMap);
+      } else {
+        setStockQuotes(new Map());
+      }
+
+      // Show success message
+      alert(`Successfully sold ${quantity} shares of ${symbol}!`);
+
+      // Close modal
+      setIsSellModalOpen(false);
+      setSelectedHolding(null);
+      setSelectedQuote(null);
+    } catch (error) {
+      console.error('Sale failed:', error);
+      throw error; // Let modal handle error display
+    }
   };
 
   return (
@@ -199,6 +246,7 @@ const Dashboard = (): JSX.Element => {
                 holdings={holdings}
                 stockQuotes={stockQuotes}
                 loading={holdingsLoading}
+                onSell={handleSell}
               />
             </div>
           </div>
@@ -250,6 +298,21 @@ const Dashboard = (): JSX.Element => {
             {userId}
           </p>
         </div>
+
+        {/* Sell Modal */}
+        {selectedHolding && selectedQuote && (
+          <SellModal
+            holding={selectedHolding}
+            stockQuote={selectedQuote}
+            isOpen={isSellModalOpen}
+            onClose={() => {
+              setIsSellModalOpen(false);
+              setSelectedHolding(null);
+              setSelectedQuote(null);
+            }}
+            onConfirm={handleSellConfirm}
+          />
+        )}
       </div>
     </PageWrapper>
   );

@@ -194,3 +194,124 @@ authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response) =
     res.status(500).json({ error: 'Failed to process stock purchase' });
   }
 });
+
+// Sell stock - authenticated endpoint
+authenticatedApp.post('/stock/sell', async (req: RequestContext, res: Response) => {
+  try {
+    const { symbol, quantity } = req.body as { symbol: string; quantity: number };
+    const userSub = req.currentUserSub;
+
+    // Validation
+    if (!symbol || quantity === undefined) {
+      res.status(400).json({ error: 'Symbol and quantity are required' });
+      return;
+    }
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      res.status(400).json({ error: 'Quantity must be a positive integer' });
+      return;
+    }
+
+    // Get user's portfolio
+    const allPortfolios = await portfolioService.getAll();
+    const portfolio = allPortfolios.find((p) => p.userId === userSub);
+
+    if (!portfolio) {
+      res.status(404).json({ error: 'Portfolio not found' });
+      return;
+    }
+
+    // Get holding for this symbol
+    const existingHolding = await getHoldingByPortfolioAndSymbol(
+      portfolio.portfolioId,
+      symbol,
+    );
+
+    if (!existingHolding) {
+      res.status(404).json({ error: "You don't own this stock" });
+      return;
+    }
+
+    // Check if user owns enough shares
+    if (quantity > existingHolding.quantity) {
+      res.status(400).json({
+        error: 'Insufficient shares',
+        owned: existingHolding.quantity,
+        requested: quantity,
+      });
+      return;
+    }
+
+    // Fetch current stock price
+    const stockQuote = await getStockQuote(symbol);
+    const totalProceeds = stockQuote.regularMarketPrice * quantity;
+
+    // Update or delete holding
+    let updatedHolding: Holding | null = null;
+
+    if (quantity === existingHolding.quantity) {
+      // Selling all shares - delete the holding
+      await holdingService.delete(existingHolding.holdingId);
+    } else {
+      // Selling partial shares - update the holding
+      const newQuantity = existingHolding.quantity - quantity;
+      const newTotalCost = newQuantity * existingHolding.averageCost;
+
+      updatedHolding = await holdingService.update({
+        holdingId: existingHolding.holdingId,
+        quantity: newQuantity,
+        averageCost: existingHolding.averageCost, // Keep original average cost
+        totalCost: newTotalCost,
+        currentValue: newQuantity * stockQuote.regularMarketPrice,
+        lastUpdated: new Date().toISOString(),
+      });
+    }
+
+    // Create transaction record
+    const transaction = await transactionService.create({
+      portfolioId: portfolio.portfolioId,
+      holdingId: existingHolding.holdingId,
+      symbol: stockQuote.symbol,
+      type: 'SELL' as const,
+      quantity: quantity,
+      pricePerShare: stockQuote.regularMarketPrice,
+      totalAmount: totalProceeds,
+      timestamp: new Date().toISOString(),
+      status: 'COMPLETED' as const,
+    });
+
+    // Update portfolio cash and total value
+    const newCash = portfolio.cash + totalProceeds;
+    const allHoldings = await getHoldingsByPortfolioId(portfolio.portfolioId);
+
+    // Fetch current prices for all holdings to calculate total value
+    const holdingsSymbols = allHoldings.map((h) => h.symbol);
+    const currentQuotes = holdingsSymbols.length > 0
+      ? await getMultipleStockQuotes(holdingsSymbols)
+      : [];
+    const quotesMap = new Map(currentQuotes.map((q) => [q.symbol, q]));
+
+    const totalHoldingsValue = allHoldings.reduce((sum, h) => {
+      const currentPrice = quotesMap.get(h.symbol)?.regularMarketPrice || 0;
+      return sum + h.quantity * currentPrice;
+    }, 0);
+
+    const updatedPortfolio = await portfolioService.update({
+      portfolioId: portfolio.portfolioId,
+      cash: newCash,
+      totalValue: newCash + totalHoldingsValue,
+    });
+
+    // Return success response
+    res.json({
+      success: true,
+      transaction: transactionMapper(transaction),
+      holding: updatedHolding ? holdingMapper(updatedHolding) : null,
+      portfolio: portfolioMapper(updatedPortfolio),
+    });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    console.error(`Failed to sell stock: ${message}`);
+    res.status(500).json({ error: 'Failed to process stock sale' });
+  }
+});

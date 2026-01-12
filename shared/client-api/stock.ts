@@ -62,3 +62,31 @@ export const buyStock = async (
   }
   throw response;
 };
+
+export interface SellStockRequest {
+  symbol: string;
+  quantity: number;
+}
+
+export interface SellStockResponse {
+  success: boolean;
+  transaction: Transaction;
+  holding: Holding | null;
+  portfolio: Portfolio;
+}
+
+export const sellStock = async (
+  requestHandler: RequestHandler,
+  request: SellStockRequest,
+): Promise<SellStockResponse> => {
+  const response = await requestHandler.request<SellStockResponse>({
+    method: 'POST',
+    url: 'stock/sell',
+    hasAuthentication: true,
+    data: request,
+  });
+  if ('data' in response) {
+    return response.data;
+  }
+  throw response;
+};
