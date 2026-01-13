@@ -11,6 +11,7 @@ import About from './pages/About';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Stocks from './pages/Stocks';
+import Leaderboard from './pages/Leaderboard';
 
 async function dashboardLoader() {
   // Retry a few times to handle Amplify initialization timing
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <Home />, index: true },
       { path: '/about', element: <About /> },
+      { path: '/leaderboard', element: <Leaderboard /> },
     ],
   },
   {

@@ -133,6 +133,20 @@ const Dashboard = (): JSX.Element => {
     }
   };
 
+  // Calculate real-time total value using current stock prices
+  const calculateTotalValue = (): number => {
+    if (!portfolio) return 0;
+
+    const holdingsValue = holdings.reduce((sum, holding) => {
+      const currentPrice = stockQuotes.get(holding.symbol)?.regularMarketPrice || 0;
+      return sum + holding.quantity * currentPrice;
+    }, 0);
+
+    return portfolio.cash + holdingsValue;
+  };
+
+  const currentTotalValue = calculateTotalValue();
+
   return (
     <PageWrapper title="Dashboard">
       <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
@@ -234,7 +248,7 @@ const Dashboard = (): JSX.Element => {
                   Total Value
                 </p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  ${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
             </div>
