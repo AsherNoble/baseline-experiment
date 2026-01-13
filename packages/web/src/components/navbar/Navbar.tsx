@@ -15,6 +15,11 @@ const leftRoutes: Route[] = [
     path: '/about',
     type: 'link',
   },
+  {
+    label: 'Leaderboard',
+    path: '/leaderboard',
+    type: 'link',
+  },
 ];
 
 const Navbar = (): JSX.Element => {
