@@ -1,0 +1,44 @@
+name: Auto PR Description
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  update-pr-description:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      
+      - name: Get commit messages
+        id: commits
+        run: |
+          # Get commits from base to head, excluding merge commits
+          COMMITS=$(git log --no-merges --pretty=format:"- %s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          
+          # Handle multiline output for GitHub Actions
+          echo "messages<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Update PR description
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const commits = `${{ steps.commits.outputs.messages }}`;
+            
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: commits || "No commits found"
+            });
