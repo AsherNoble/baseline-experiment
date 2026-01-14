@@ -21,5 +21,13 @@ export default tseslint.config(...rootConfig, {
     ...js.configs.recommended.rules,
     ...tsPlugin.configs.recommended.rules,
     ...tsPlugin.configs['recommended-requiring-type-checking'].rules,
+    '@typescript-eslint/no-misused-promises': [
+      'error',
+      {
+        checksVoidReturn: {
+          arguments: false,
+        },
+      },
+    ],
   },
 });
