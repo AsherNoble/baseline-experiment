@@ -9,11 +9,11 @@ import {
 } from 'react-router-dom';
 import About from './pages/About';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import Stocks from './pages/Stocks';
+import Portfolio from './pages/Portfolio';
+import Market from './pages/Market';
 import Leaderboard from './pages/Leaderboard';
 
-async function dashboardLoader() {
+async function portfolioLoader() {
   // Retry a few times to handle Amplify initialization timing
   for (let i = 0; i < 3; i++) {
     try {
@@ -23,7 +23,7 @@ async function dashboardLoader() {
         return { userId };
       }
     } catch (error) {
-      console.error('Dashboard loader attempt failed:', error);
+      console.error('Portfolio loader attempt failed:', error);
     }
     // Wait before retry
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -47,8 +47,8 @@ const router = createBrowserRouter([
     path: '/',
     Component: Outlet,
     children: [
-      { path: '/dashboard', element: <Dashboard />, loader: dashboardLoader },
-      { path: '/stocks', element: <Stocks />, loader: dashboardLoader },
+      { path: '/portfolio', element: <Portfolio />, loader: portfolioLoader },
+      { path: '/market', element: <Market />, loader: portfolioLoader },
     ],
   },
 ]);
@@ -60,7 +60,7 @@ const App = () => {
         case 'signedIn':
           // Small delay to ensure auth session is ready
           await new Promise((resolve) => setTimeout(resolve, 100));
-          router.navigate('/dashboard').catch((e) => console.error(e));
+          router.navigate('/portfolio').catch((e) => console.error(e));
           break;
         case 'signedOut':
           router.navigate('/').catch((e) => console.error(e));

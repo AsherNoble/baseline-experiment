@@ -7,7 +7,7 @@ import {
   getRequestHandler,
 } from '@baseline/client-api/request-handler';
 import { getMyPortfolio, MyPortfolioResponse } from '@baseline/client-api/portfolio';
-import { Portfolio } from '@baseline/types/portfolio';
+import { Portfolio as PortfolioType } from '@baseline/types/portfolio';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
 import { Transaction } from '@baseline/types/transaction';
@@ -20,20 +20,20 @@ import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
 import SellModal from '../components/sell-modal/SellModal';
-import styles from './Dashboard.module.scss';
+import styles from './Portfolio.module.scss';
 
-interface DashboardLoaderData {
+interface PortfolioLoaderData {
   userId: string;
 }
 
 const INITIAL_PORTFOLIO_VALUE = 100000;
 
-const Dashboard = (): JSX.Element => {
-  useLoaderData() as DashboardLoaderData | undefined;
+const Portfolio = (): JSX.Element => {
+  useLoaderData() as PortfolioLoaderData | undefined;
   const navigate = useNavigate();
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(
     new Map(),
@@ -99,7 +99,7 @@ const Dashboard = (): JSX.Element => {
 
   const handleTabChange = (tab: 'portfolio' | 'market') => {
     if (tab === 'market') {
-      navigate('/stocks');
+      navigate('/market');
     } else {
       setActiveTab(tab);
     }
@@ -161,7 +161,7 @@ const Dashboard = (): JSX.Element => {
 
   if (loading) {
     return (
-      <PageWrapper title="Dashboard">
+      <PageWrapper title="Portfolio">
         <div className={styles.dashboard}>
           <div className={styles.loading}>Loading...</div>
         </div>
@@ -171,7 +171,7 @@ const Dashboard = (): JSX.Element => {
 
   if (error) {
     return (
-      <PageWrapper title="Dashboard">
+      <PageWrapper title="Portfolio">
         <div className={styles.dashboard}>
           <div className={styles.content}>
             <div className={styles.error}>
@@ -185,7 +185,7 @@ const Dashboard = (): JSX.Element => {
 
   if (isAdmin) {
     return (
-      <PageWrapper title="Dashboard">
+      <PageWrapper title="Portfolio">
         <div className={styles.dashboard}>
           <div className={styles.content}>
             <div className={styles.adminView}>
@@ -201,7 +201,7 @@ const Dashboard = (): JSX.Element => {
 
   if (!portfolio) {
     return (
-      <PageWrapper title="Dashboard">
+      <PageWrapper title="Portfolio">
         <div className={styles.dashboard}>
           <div className={styles.content}>
             <div className={styles.noPortfolio}>
@@ -214,7 +214,7 @@ const Dashboard = (): JSX.Element => {
   }
 
   return (
-    <PageWrapper title="Dashboard">
+    <PageWrapper title="Portfolio">
       <div className={styles.dashboard}>
         <DashboardHeader
           totalValue={totalPortfolioValue}
@@ -263,4 +263,4 @@ const Dashboard = (): JSX.Element => {
   );
 };
 
-export default Dashboard;
+export default Portfolio;
