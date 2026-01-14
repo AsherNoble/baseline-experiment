@@ -1,4 +1,5 @@
 import { LeaderboardEntry } from '@baseline/types/leaderboard';
+import { Holding } from '@baseline/types/holding';
 import { portfolioService } from '../portfolio/portfolio.service';
 import { userService } from '../user/user.service';
 import { isAdminSub } from '../admin/admin.service';
@@ -18,7 +19,7 @@ export const getLeaderboard = async (
   const userMap = new Map(allUsers.map((u) => [u.userSub, u]));
 
   // 3. Fetch holdings for all portfolios
-  const holdingsMap = new Map<string, any[]>();
+  const holdingsMap = new Map<string, Holding[]>();
   const allSymbols = new Set<string>();
 
   for (const portfolio of allPortfolios) {
