@@ -1,6 +1,7 @@
 import React from 'react';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
+import EmptyState from '../empty-state/EmptyState';
 import styles from './HoldingsTable.module.scss';
 
 interface HoldingsTableProps {
@@ -29,10 +30,11 @@ const HoldingsTable = ({
 
   if (holdings.length === 0) {
     return (
-      <div className={styles.empty}>
-        <p>You don't own any stocks yet.</p>
-        <p>Visit the Stocks page to start trading!</p>
-      </div>
+      <EmptyState
+        icon="trending"
+        title="No holdings yet"
+        subtitle="Start trading from the Market tab"
+      />
     );
   }
 
@@ -41,32 +43,40 @@ const HoldingsTable = ({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Symbol</th>
-            <th className={styles.alignRight}>Shares</th>
-            <th className={styles.alignRight}>Avg Cost</th>
-            <th className={styles.alignRight}>Total Cost</th>
-            <th className={styles.alignRight}>Current Price</th>
-            <th className={styles.alignRight}>Market Value</th>
-            <th className={styles.alignRight}>Gain/Loss</th>
-            {onSell && <th className={styles.alignCenter}>Action</th>}
+            <th>SYMBOL</th>
+            <th>NAME</th>
+            <th className={styles.alignRight}>QUANTITY</th>
+            <th className={styles.alignRight}>AVG PRICE</th>
+            <th className={styles.alignRight}>CURRENT PRICE</th>
+            <th className={styles.alignRight}>MARKET VALUE</th>
+            <th className={styles.alignRight}>GAIN/LOSS</th>
           </tr>
         </thead>
         <tbody>
           {holdings.map((holding) => {
             const currentQuote = stockQuotes.get(holding.symbol);
             const currentPrice = currentQuote?.regularMarketPrice || 0;
+            const previousClose = currentQuote?.previousClose || currentPrice;
+            const priceChange = currentPrice - previousClose;
+            const priceChangePercent = previousClose > 0 ? (priceChange / previousClose) * 100 : 0;
+            const priceChangePositive = priceChange >= 0;
+
             const marketValue = holding.quantity * currentPrice;
             const gainLoss = marketValue - holding.totalCost;
-            const gainLossPercent = (gainLoss / holding.totalCost) * 100;
+            const gainLossPercent = holding.totalCost > 0 ? (gainLoss / holding.totalCost) * 100 : 0;
             const isPositive = gainLoss >= 0;
 
             return (
-              <tr key={holding.holdingId}>
+              <tr
+                key={holding.holdingId}
+                className={onSell ? styles.clickable : ''}
+                onClick={() => currentQuote && onSell && onSell(holding, currentQuote)}
+              >
                 <td className={styles.symbol}>
                   {holding.symbol.replace('.AX', '')}
-                  {currentQuote && (
-                    <span className={styles.name}>{currentQuote.shortName}</span>
-                  )}
+                </td>
+                <td className={styles.name}>
+                  {currentQuote?.shortName || '—'}
                 </td>
                 <td className={styles.alignRight}>
                   {holding.quantity.toLocaleString()}
@@ -75,106 +85,41 @@ const HoldingsTable = ({
                   {formatCurrency(holding.averageCost)}
                 </td>
                 <td className={styles.alignRight}>
-                  {formatCurrency(holding.totalCost)}
-                </td>
-                <td className={styles.alignRight}>
-                  {currentPrice > 0 ? formatCurrency(currentPrice) : '—'}
-                </td>
-                <td className={styles.alignRight}>
-                  {currentPrice > 0 ? formatCurrency(marketValue) : '—'}
-                </td>
-                <td
-                  className={`${styles.alignRight} ${isPositive ? styles.positive : styles.negative}`}
-                >
                   {currentPrice > 0 ? (
-                    <>
-                      {isPositive ? '+' : ''}
-                      {formatCurrency(gainLoss)}
-                      <span className={styles.percent}>
-                        ({isPositive ? '+' : ''}
-                        {gainLossPercent.toFixed(2)}%)
+                    <div className={styles.priceCell}>
+                      <span>{formatCurrency(currentPrice)}</span>
+                      <span className={`${styles.priceChange} ${priceChangePositive ? styles.positive : styles.negative}`}>
+                        {priceChangePositive ? '+' : ''}
+                        {priceChange.toFixed(2)} ({priceChangePercent.toFixed(2)}%)
                       </span>
-                    </>
+                    </div>
                   ) : (
                     '—'
                   )}
                 </td>
-                {onSell && (
-                  <td className={styles.alignCenter}>
-                    <button
-                      className={styles.sellButton}
-                      onClick={() =>
-                        currentQuote && onSell(holding, currentQuote)
-                      }
-                      disabled={!currentQuote}
-                    >
-                      Sell
-                    </button>
-                  </td>
-                )}
+                <td className={styles.alignRight}>
+                  {currentPrice > 0 ? formatCurrency(marketValue) : '—'}
+                </td>
+                <td className={styles.alignRight}>
+                  {currentPrice > 0 ? (
+                    <div className={`${styles.gainLossCell} ${isPositive ? styles.positive : styles.negative}`}>
+                      <span>
+                        {isPositive ? '+' : ''}
+                        {formatCurrency(Math.abs(gainLoss))}
+                      </span>
+                      <span className={styles.percent}>
+                        {isPositive ? '+' : '-'}
+                        {Math.abs(gainLossPercent).toFixed(2)}%
+                      </span>
+                    </div>
+                  ) : (
+                    '—'
+                  )}
+                </td>
               </tr>
             );
           })}
         </tbody>
-        <tfoot>
-          <tr className={styles.totalRow}>
-            <td>Total</td>
-            <td className={styles.alignRight}>
-              {holdings.reduce((sum, h) => sum + h.quantity, 0).toLocaleString()}
-            </td>
-            <td></td>
-            <td className={styles.alignRight}>
-              {formatCurrency(
-                holdings.reduce((sum, h) => sum + h.totalCost, 0),
-              )}
-            </td>
-            <td></td>
-            <td className={styles.alignRight}>
-              {formatCurrency(
-                holdings.reduce((sum, h) => {
-                  const quote = stockQuotes.get(h.symbol);
-                  return (
-                    sum + h.quantity * (quote?.regularMarketPrice || 0)
-                  );
-                }, 0),
-              )}
-            </td>
-            <td className={styles.alignRight}>
-              {(() => {
-                const totalCost = holdings.reduce(
-                  (sum, h) => sum + h.totalCost,
-                  0,
-                );
-                const totalValue = holdings.reduce((sum, h) => {
-                  const quote = stockQuotes.get(h.symbol);
-                  return (
-                    sum + h.quantity * (quote?.regularMarketPrice || 0)
-                  );
-                }, 0);
-                const totalGainLoss = totalValue - totalCost;
-                const isPositive = totalGainLoss >= 0;
-                const percent =
-                  totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
-
-                return (
-                  <span
-                    className={
-                      isPositive ? styles.positive : styles.negative
-                    }
-                  >
-                    {isPositive ? '+' : ''}
-                    {formatCurrency(totalGainLoss)}
-                    <span className={styles.percent}>
-                      ({isPositive ? '+' : ''}
-                      {percent.toFixed(2)}%)
-                    </span>
-                  </span>
-                );
-              })()}
-            </td>
-            {onSell && <td></td>}
-          </tr>
-        </tfoot>
       </table>
     </div>
   );

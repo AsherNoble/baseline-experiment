@@ -1,0 +1,83 @@
+$md: 768px;
+
+.dashboard {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  @media (max-width: $md) {
+    padding: 1rem;
+  }
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #666;
+}
+
+.error {
+  padding: 2rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  color: #721c24;
+  text-align: center;
+}
+
+.adminView {
+  padding: 2rem;
+  background-color: #cce5ff;
+  border: 1px solid #b8daff;
+  border-radius: 8px;
+  text-align: center;
+  color: #004085;
+
+  h2 {
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    margin: 0.5rem 0;
+  }
+}
+
+.noPortfolio {
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+}
