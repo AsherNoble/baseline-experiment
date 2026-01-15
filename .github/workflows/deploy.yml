@@ -60,9 +60,9 @@ jobs:
         run: |
           echo "Configuring AWS Profile ${{ env.AWS_PROFILE_GITHUB }}"
           aws configure set region ${{ env.AWS_REGION }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_access_key_id ${{ steps.aws-assume.outputs.aws-access-key-id }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_secret_access_key ${{ steps.aws-assume.outputs.aws-secret-access-key }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_session_token ${{ steps.aws-assume.outputs.aws-session-token }} --profile ${{ env.AWS_PROFILE_GITHUB }}
           aws sts get-caller-identity --query "Account" --output text --profile "${{ env.AWS_PROFILE_GITHUB }}"
       - name: Deploy
         run: |
