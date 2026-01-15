@@ -26,7 +26,7 @@ interface PortfolioLoaderData {
   userId: string;
 }
 
-const INITIAL_PORTFOLIO_VALUE = 100000;
+const INITIAL_PORTFOLIO_VALUE = 50000;
 
 const Portfolio = (): JSX.Element => {
   useLoaderData() as PortfolioLoaderData | undefined;
