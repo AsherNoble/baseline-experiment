@@ -5,8 +5,8 @@ import styles from './PortfolioHeader.module.scss';
 interface PortfolioHeaderProps {
   totalValue: number;
   initialValue?: number;
-  activeTab: 'portfolio' | 'market';
-  onTabChange: (tab: 'portfolio' | 'market') => void;
+  activeTab: 'portfolio' | 'market' | 'leaderboard';
+  onTabChange: (tab: 'portfolio' | 'market' | 'leaderboard') => void;
 }
 
 const formatCurrency = (value: number): string => {
@@ -60,6 +60,12 @@ const PortfolioHeader = ({
           onClick={() => onTabChange('market')}
         >
           Market
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'leaderboard' ? styles.active : ''}`}
+          onClick={() => onTabChange('leaderboard')}
+        >
+          Leaderboard
         </button>
       </div>
     </div>
