@@ -19,7 +19,7 @@ async function portfolioLoader() {
     try {
       const authSession = await fetchAuthSession();
       if (authSession?.tokens?.idToken) {
-        const userId = authSession.tokens.idToken.payload.sub as string;
+        const userId = authSession.tokens.idToken.payload.sub;
         return { userId };
       }
     } catch (error) {
@@ -55,12 +55,14 @@ const router = createBrowserRouter([
 
 const App = () => {
   useEffect(() => {
-    return Hub.listen('auth', async (data) => {
+    return Hub.listen('auth', (data) => {
       switch (data.payload.event) {
         case 'signedIn':
           // Small delay to ensure auth session is ready
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          router.navigate('/portfolio').catch((e) => console.error(e));
+          void (async () => {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            router.navigate('/portfolio').catch((e) => console.error(e));
+          })();
           break;
         case 'signedOut':
           router.navigate('/').catch((e) => console.error(e));
