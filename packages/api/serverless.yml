@@ -123,3 +123,4 @@ functions:
   - ${file(./src/baseblocks/stock/stock-functions.yml)}
   - ${file(./src/baseblocks/holding/holding-functions.yml)}
   - ${file(./src/baseblocks/leaderboard/leaderboard-functions.yml)}
+  - ${file(./src/baseblocks/transaction/transaction-functions.yml)}

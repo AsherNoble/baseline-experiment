@@ -1,0 +1,102 @@
+$green: #28a745;
+$red: #dc3545;
+
+.container {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.transaction {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  gap: 1rem;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.buy {
+    background-color: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &.sell {
+    background-color: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.action {
+  font-weight: 500;
+  color: #333;
+}
+
+.info {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.amount {
+  font-weight: 600;
+
+  &.positive {
+    color: $green;
+  }
+
+  &.negative {
+    color: $red;
+  }
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 0.25rem;
+}

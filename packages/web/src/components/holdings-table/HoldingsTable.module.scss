@@ -1,7 +1,8 @@
+$green: #28a745;
+$red: #dc3545;
+
 .container {
   overflow-x: auto;
-  border: 1px solid #ddd;
-  border-radius: 8px;
 }
 
 .table {
@@ -11,45 +12,45 @@
 
   th,
   td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     text-align: left;
     border-bottom: 1px solid #eee;
   }
 
   thead {
-    background-color: #f9f9f9;
-
     th {
       font-weight: 600;
-      color: #333;
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 
-  tbody tr:hover {
-    background-color: #f5f5f5;
-  }
+  tbody tr {
+    transition: background-color 150ms ease;
 
-  tfoot {
-    font-weight: bold;
-    background-color: #f9f9f9;
+    &:hover {
+      background-color: #f9f9f9;
+    }
 
-    td {
-      border-top: 2px solid #333;
+    &:last-child td {
       border-bottom: 0;
     }
   }
 }
 
-.symbol {
-  font-weight: 500;
+.clickable {
+  cursor: pointer;
+}
 
-  .name {
-    display: block;
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: normal;
-    margin-top: 0.25rem;
-  }
+.symbol {
+  font-weight: 600;
+  color: #333;
+}
+
+.name {
+  color: #666;
 }
 
 .alignRight {
@@ -60,46 +61,34 @@
   text-align: center;
 }
 
-.positive {
-  color: #28a745;
+.priceCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.negative {
-  color: #dc3545;
+.priceChange {
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.gainLossCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .percent {
-  font-size: 0.85rem;
-  margin-left: 0.25rem;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
 }
 
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
+.positive {
+  color: $green;
 }
 
-.empty {
-  text-align: center;
-  padding: 3rem 2rem;
-  color: #666;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-
-  p {
-    margin: 0.5rem 0;
-
-    &:first-child {
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #333;
-    }
-  }
-}
-
-.totalRow {
-  font-size: 1rem;
+.negative {
+  color: $red;
 }
 
 .sellButton {
