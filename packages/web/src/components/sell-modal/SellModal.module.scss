@@ -12,7 +12,7 @@
 }
 
 .modal {
-  background: #ffffff;
+  background: #fff;
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
@@ -184,7 +184,7 @@
 
 .cancelButton {
   background-color: #6c757d;
-  color: #ffffff;
+  color: #fff;
 
   &:hover:not(:disabled) {
     background-color: #5a6268;
@@ -193,7 +193,7 @@
 
 .confirmButton {
   background-color: #dc3545;
-  color: #ffffff;
+  color: #fff;
 
   &:hover:not(:disabled) {
     background-color: #c82333;
