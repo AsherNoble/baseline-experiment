@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLoaderData } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
@@ -15,7 +15,7 @@ import { getMyHoldings } from '@baseline/client-api/holding';
 import { getMultipleStockQuotes, sellStock } from '@baseline/client-api/stock';
 import { getMyTransactions } from '@baseline/client-api/transaction';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
-import DashboardHeader from '../components/dashboard-header/DashboardHeader';
+import PortfolioHeader from '../components/portfolio-header/PortfolioHeader';
 import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
@@ -162,7 +162,7 @@ const Portfolio = (): JSX.Element => {
   if (loading) {
     return (
       <PageWrapper title="Portfolio">
-        <div className={styles.dashboard}>
+        <div className={styles.portfolio}>
           <div className={styles.loading}>Loading...</div>
         </div>
       </PageWrapper>
@@ -172,7 +172,7 @@ const Portfolio = (): JSX.Element => {
   if (error) {
     return (
       <PageWrapper title="Portfolio">
-        <div className={styles.dashboard}>
+        <div className={styles.portfolio}>
           <div className={styles.content}>
             <div className={styles.error}>
               <p>{error}</p>
@@ -186,7 +186,7 @@ const Portfolio = (): JSX.Element => {
   if (isAdmin) {
     return (
       <PageWrapper title="Portfolio">
-        <div className={styles.dashboard}>
+        <div className={styles.portfolio}>
           <div className={styles.content}>
             <div className={styles.adminView}>
               <h2>Administrator</h2>
@@ -202,7 +202,7 @@ const Portfolio = (): JSX.Element => {
   if (!portfolio) {
     return (
       <PageWrapper title="Portfolio">
-        <div className={styles.dashboard}>
+        <div className={styles.portfolio}>
           <div className={styles.content}>
             <div className={styles.noPortfolio}>
               <p>No portfolio data available.</p>
@@ -215,8 +215,8 @@ const Portfolio = (): JSX.Element => {
 
   return (
     <PageWrapper title="Portfolio">
-      <div className={styles.dashboard}>
-        <DashboardHeader
+      <div className={styles.portfolio}>
+        <PortfolioHeader
           totalValue={totalPortfolioValue}
           initialValue={INITIAL_PORTFOLIO_VALUE}
           activeTab={activeTab}

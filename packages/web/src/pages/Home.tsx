@@ -40,7 +40,7 @@ const Home = (): JSX.Element => {
               </p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                 <Link
-                  to="/dashboard"
+                  to="/portfolio"
                   style={{
                     padding: '0.75rem 1.5rem',
                     backgroundColor: '#007bff',
@@ -49,7 +49,7 @@ const Home = (): JSX.Element => {
                     borderRadius: '4px',
                   }}
                 >
-                  Go to Dashboard
+                  Go to Portfolio
                 </Link>
                 <button
                   onClick={() => void handleSignOut()}
