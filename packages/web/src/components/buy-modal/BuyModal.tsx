@@ -139,7 +139,7 @@ const BuyModal = ({
           </button>
           <button
             className={styles.confirmButton}
-            onClick={() => handleConfirm()}
+            onClick={() => void handleConfirm()}
             disabled={loading || !canAfford || quantityNum <= 0}
           >
             {loading ? 'Processing...' : 'Confirm Purchase'}

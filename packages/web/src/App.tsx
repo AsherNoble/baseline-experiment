@@ -59,7 +59,7 @@ const App = () => {
       switch (data.payload.event) {
         case 'signedIn':
           // Small delay to ensure auth session is ready
-          (async () => {
+          void (async () => {
             await new Promise((resolve) => setTimeout(resolve, 100));
             router.navigate('/dashboard').catch((e) => console.error(e));
           })();
