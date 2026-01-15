@@ -36,23 +36,12 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install
-      - name: Set Role ARN
-        id: set-role
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "ROLE_ARN=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_ENV
-            echo "role_arn=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            echo "ROLE_ARN=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_ENV
-            echo "role_arn=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_OUTPUT
-          fi
       - name: AWS Assume Role
         id: aws-assume
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ env.ROLE_ARN }}
           output-credentials: true
       - name: AWS Configure
         id: aws-configure
@@ -60,9 +49,9 @@ jobs:
         run: |
           echo "Configuring AWS Profile ${{ env.AWS_PROFILE_GITHUB }}"
           aws configure set region ${{ env.AWS_REGION }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_access_key_id ${{ steps.aws-assume.outputs.aws-access-key-id }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_secret_access_key ${{ steps.aws-assume.outputs.aws-secret-access-key }} --profile ${{ env.AWS_PROFILE_GITHUB }}
-          aws configure set aws_session_token ${{ steps.aws-assume.outputs.aws-session-token }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile ${{ env.AWS_PROFILE_GITHUB }}
+          aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile ${{ env.AWS_PROFILE_GITHUB }}
           aws sts get-caller-identity --query "Account" --output text --profile "${{ env.AWS_PROFILE_GITHUB }}"
       - name: Deploy
         run: |
@@ -71,4 +60,3 @@ jobs:
           elif [[ ${{ github.ref }} == 'refs/heads/prod' ]]; then
             pnpm run deploy:prod
           fi
-          
