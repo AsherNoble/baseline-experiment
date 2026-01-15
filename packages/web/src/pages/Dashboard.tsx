@@ -83,7 +83,7 @@ const Dashboard = (): JSX.Element => {
       }
     };
 
-    fetchPortfolio();
+    void fetchPortfolio();
   }, []);
 
   const handleSignOut = async () => {
@@ -166,7 +166,7 @@ const Dashboard = (): JSX.Element => {
               {user?.signInDetails?.loginId || 'User'}
             </span>
             <button
-              onClick={handleSignOut}
+              onClick={() => void handleSignOut()}
               style={{
                 padding: '0.5rem 1rem',
                 backgroundColor: '#6c757d',

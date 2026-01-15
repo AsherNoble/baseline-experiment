@@ -142,7 +142,7 @@ const SellModal = ({
           </button>
           <button
             className={styles.confirmButton}
-            onClick={handleConfirm}
+            onClick={() => handleConfirm()}
             disabled={loading || !canSell}
           >
             {loading ? 'Processing...' : 'Confirm Sale'}

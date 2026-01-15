@@ -79,7 +79,7 @@ const Stocks = (): JSX.Element => {
       }
     };
 
-    fetchStocks();
+    void fetchStocks();
   }, []);
 
   const handleBuy = (stock: StockQuote) => {

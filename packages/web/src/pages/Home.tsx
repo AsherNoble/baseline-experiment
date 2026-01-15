@@ -52,7 +52,7 @@ const Home = (): JSX.Element => {
                   Go to Dashboard
                 </Link>
                 <button
-                  onClick={handleSignOut}
+                  onClick={() => void handleSignOut()}
                   style={{
                     padding: '0.75rem 1.5rem',
                     backgroundColor: '#6c757d',

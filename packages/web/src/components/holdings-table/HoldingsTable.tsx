@@ -30,7 +30,7 @@ const HoldingsTable = ({
   if (holdings.length === 0) {
     return (
       <div className={styles.empty}>
-        <p>You don't own any stocks yet.</p>
+        <p>You don&apos;t own any stocks yet.</p>
         <p>Visit the Stocks page to start trading!</p>
       </div>
     );
