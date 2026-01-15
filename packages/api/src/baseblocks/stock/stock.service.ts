@@ -45,8 +45,9 @@ export const getStockQuote = async (symbol: string): Promise<StockQuote> => {
 
 export const getMultipleStockQuotes = async (symbols: string[]): Promise<StockQuote[]> => {
   const quotes = await Promise.all(
-    symbols.map(symbol => getStockQuote(symbol).catch(error => {
-      console.error(`Failed to fetch ${symbol}: ${error.message}`);
+    symbols.map(symbol => getStockQuote(symbol).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Failed to fetch ${symbol}: ${message}`);
       return null;
     }))
   );

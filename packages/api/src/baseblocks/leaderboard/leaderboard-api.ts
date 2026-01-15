@@ -10,7 +10,7 @@ const app = createApp();
 export const handler = serverless(app);
 
 // Get leaderboard
-app.get('/leaderboard', async (req: Request, res: Response) => {
+app.get('/leaderboard', async (req: Request, res: Response): Promise<void> => {
   try {
     const limit = parseInt(req.query.limit as string) || 100;
 

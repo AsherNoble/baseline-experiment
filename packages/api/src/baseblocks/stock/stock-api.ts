@@ -15,9 +15,7 @@ import {
 import { holdingMapper } from '../holding/holding';
 import { transactionService } from '../transaction/transaction.service';
 import { transactionMapper } from '../transaction/transaction';
-import { Portfolio } from '@baseline/types/portfolio';
 import { Holding } from '@baseline/types/holding';
-import { Transaction } from '@baseline/types/transaction';
 
 const app = createApp();
 const authenticatedApp = createApp();
@@ -29,7 +27,7 @@ export const handler = serverless(app);
 export const authHandler = createAuthenticatedHandler(authenticatedApp);
 
 // Get a single stock quote by symbol
-app.get('/stock/:symbol', async (req: Request, res: Response) => {
+app.get('/stock/:symbol', async (req: Request, res: Response): Promise<void> => {
   try {
     const { symbol } = req.params;
 
@@ -48,7 +46,7 @@ app.get('/stock/:symbol', async (req: Request, res: Response) => {
 });
 
 // Get multiple stock quotes
-app.post('/stock/quotes', async (req: Request, res: Response) => {
+app.post('/stock/quotes', async (req: Request, res: Response): Promise<void> => {
   try {
     const { symbols } = req.body as { symbols: string[] };
 
@@ -72,7 +70,7 @@ app.post('/stock/quotes', async (req: Request, res: Response) => {
 });
 
 // Buy stock - authenticated endpoint
-authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response) => {
+authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response): Promise<void> => {
   try {
     const { symbol, quantity } = req.body as { symbol: string; quantity: number };
     const userSub = req.currentUserSub;
@@ -196,7 +194,7 @@ authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response) =
 });
 
 // Sell stock - authenticated endpoint
-authenticatedApp.post('/stock/sell', async (req: RequestContext, res: Response) => {
+authenticatedApp.post('/stock/sell', async (req: RequestContext, res: Response): Promise<void> => {
   try {
     const { symbol, quantity } = req.body as { symbol: string; quantity: number };
     const userSub = req.currentUserSub;

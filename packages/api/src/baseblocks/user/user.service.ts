@@ -23,7 +23,7 @@ export const getOrCreateUser = async (
     if (existingUser?.userSub) {
       return existingUser;
     }
-  } catch (error) {
+  } catch {
     // User doesn't exist, will create below
   }
 

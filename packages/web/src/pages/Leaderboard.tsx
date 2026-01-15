@@ -48,7 +48,7 @@ const Leaderboard = (): JSX.Element => {
       }
     };
 
-    fetchLeaderboard();
+    void fetchLeaderboard();
   }, []);
 
   return (

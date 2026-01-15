@@ -1,7 +1,6 @@
 import React from 'react';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
-import EmptyState from '../empty-state/EmptyState';
 import styles from './HoldingsTable.module.scss';
 
 interface HoldingsTableProps {
@@ -30,11 +29,10 @@ const HoldingsTable = ({
 
   if (holdings.length === 0) {
     return (
-      <EmptyState
-        icon="trending"
-        title="No holdings yet"
-        subtitle="Start trading from the Market tab"
-      />
+      <div className={styles.empty}>
+        <p>You don&apos;t own any stocks yet.</p>
+        <p>Visit the Stocks page to start trading!</p>
+      </div>
     );
   }
 

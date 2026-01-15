@@ -36,13 +36,6 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install
-      - name: Set Role ARN
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "ROLE_ARN=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            echo "ROLE_ARN=arn:aws:iam::650810417826:role/deploy" >> $GITHUB_ENV
-          fi
       - name: AWS Assume Role
         id: aws-assume
         uses: aws-actions/configure-aws-credentials@v4
@@ -67,4 +60,3 @@ jobs:
           elif [[ ${{ github.ref }} == 'refs/heads/prod' ]]; then
             pnpm run deploy:prod
           fi
-          
