@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLoaderData, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
@@ -22,14 +22,9 @@ import RecentTransactions from '../components/recent-transactions/RecentTransact
 import SellModal from '../components/sell-modal/SellModal';
 import styles from './Dashboard.module.scss';
 
-interface DashboardLoaderData {
-  userId: string;
-}
-
 const INITIAL_PORTFOLIO_VALUE = 100000;
 
 const Dashboard = (): JSX.Element => {
-  useLoaderData() as DashboardLoaderData | undefined;
   const navigate = useNavigate();
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -94,7 +89,7 @@ const Dashboard = (): JSX.Element => {
       }
     };
 
-    void fetchPortfolio();
+    void fetchData();
   }, []);
 
   const handleTabChange = (tab: 'portfolio' | 'market') => {

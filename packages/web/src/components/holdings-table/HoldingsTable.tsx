@@ -1,7 +1,6 @@
 import React from 'react';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
-import EmptyState from '../empty-state/EmptyState';
 import styles from './HoldingsTable.module.scss';
 
 interface HoldingsTableProps {
