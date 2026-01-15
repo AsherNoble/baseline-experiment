@@ -102,6 +102,10 @@ provider:
             - !Sub ${holdingTable.Arn}/index/*
             - !Sub ${transactionTable.Arn}
             - !Sub ${transactionTable.Arn}/index/*
+            - !Sub ${quoteTable.Arn}
+            - !Sub ${quoteTable.Arn}/index/*
+            - !Sub ${leaderboardCacheTable.Arn}
+            - !Sub ${leaderboardCacheTable.Arn}/index/*
         - Effect: Allow
           Action:
             - cognito-idp:AdminCreateUser
@@ -116,6 +120,8 @@ resources:
   - ${file(./src/baseblocks/portfolio/portfolio-dynamodb.yml)}
   - ${file(./src/baseblocks/holding/holding-dynamodb.yml)}
   - ${file(./src/baseblocks/transaction/transaction-dynamodb.yml)}
+  - ${file(./src/baseblocks/quote/quote-dynamodb.yml)}
+  - ${file(./src/baseblocks/leaderboard-cache/leaderboard-cache-dynamodb.yml)}
 functions:
   - ${file(./src/baseblocks/admin/admin-functions.yml)}
   - ${file(./src/baseblocks/user/user-functions.yml)}

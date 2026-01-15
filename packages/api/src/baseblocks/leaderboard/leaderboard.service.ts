@@ -4,11 +4,29 @@ import { portfolioService } from '../portfolio/portfolio.service';
 import { userService } from '../user/user.service';
 import { isAdminSub } from '../admin/admin.service';
 import { getHoldingsByPortfolioId } from '../holding/holding.service';
-import { getMultipleStockQuotes } from '../stock/stock.service';
+import { getCachedMultipleStockQuotes } from '../quote/quote.service';
+import { CachedLeaderboard } from '@baseline/types/leaderboard-cache';
+import { getDynamodbConnection } from '@baselinejs/dynamodb';
+import { ServiceObject } from '../../util/service-object';
 
 const INITIAL_CASH = 50000;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-export const getLeaderboard = async (
+const dynamoDb = getDynamodbConnection({
+  region: `${process.env.API_REGION}`,
+});
+
+const leaderboardCacheService = new ServiceObject<CachedLeaderboard>({
+  dynamoDb: dynamoDb,
+  objectName: 'LeaderboardCache',
+  table: `${process.env.APP_NAME}-${process.env.NODE_ENV}-leaderboard-cache`,
+  primaryKey: 'cacheKey',
+});
+
+/**
+ * Compute leaderboard from scratch (expensive operation)
+ */
+const computeLeaderboard = async (
   limit: number = 100,
 ): Promise<LeaderboardEntry[]> => {
   // 1. Fetch all portfolios
@@ -28,10 +46,10 @@ export const getLeaderboard = async (
     holdings.forEach((h) => allSymbols.add(h.symbol));
   }
 
-  // 4. Fetch current stock prices for all symbols (one batch call)
+  // 4. Fetch current stock prices for all symbols (one batch call with cache)
   const quotes =
     allSymbols.size > 0
-      ? await getMultipleStockQuotes(Array.from(allSymbols))
+      ? await getCachedMultipleStockQuotes(Array.from(allSymbols))
       : [];
   const quotesMap = new Map(quotes.map((q) => [q.symbol, q]));
 
@@ -76,4 +94,63 @@ export const getLeaderboard = async (
     ...entry,
     rank: index + 1,
   }));
+};
+
+/**
+ * Get leaderboard with caching.
+ * Checks cache first, falls back to computation if not cached or expired.
+ */
+export const getLeaderboard = async (
+  limit: number = 100,
+): Promise<LeaderboardEntry[]> => {
+  const cacheKey = `leaderboard:${limit}`;
+
+  try {
+    // Try to get from cache
+    const cached = await leaderboardCacheService.get(cacheKey);
+
+    // Check if cache is still valid
+    if (cached && cached.cachedAt && Date.now() < cached.expiresAt * 1000) {
+      console.log(`Leaderboard cache hit for limit ${limit}`);
+      return cached.entries;
+    }
+
+    console.log(`Leaderboard cache miss for limit ${limit}, computing fresh data`);
+  } catch (error) {
+    // Cache miss is fine, we'll compute fresh data
+    console.log(`Leaderboard cache miss: ${(error as Error).message}`);
+  }
+
+  // Compute fresh leaderboard
+  const freshEntries = await computeLeaderboard(limit);
+
+  // Cache the result
+  const now = Date.now();
+  const cachedLeaderboard: CachedLeaderboard = {
+    cacheKey,
+    entries: freshEntries,
+    cachedAt: now,
+    expiresAt: Math.floor((now + CACHE_TTL_MS) / 1000), // DynamoDB TTL uses seconds
+  };
+
+  try {
+    await leaderboardCacheService.create(cachedLeaderboard);
+    console.log(`Cached leaderboard until ${new Date(now + CACHE_TTL_MS).toISOString()}`);
+  } catch (error) {
+    // If cache write fails, log but don't fail the request
+    console.error(`Failed to cache leaderboard:`, error);
+  }
+
+  return freshEntries;
+};
+
+/**
+ * Clear leaderboard cache (useful when portfolios/holdings change)
+ */
+export const clearLeaderboardCache = async (): Promise<void> => {
+  const allCached = await leaderboardCacheService.getAll();
+  for (const cached of allCached) {
+    await leaderboardCacheService.delete(cached.cacheKey);
+  }
+  console.log(`Cleared ${allCached.length} leaderboard cache entries`);
 };
