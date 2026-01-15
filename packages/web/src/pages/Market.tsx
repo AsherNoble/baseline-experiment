@@ -62,6 +62,7 @@ const Market = (): JSX.Element => {
         }
 
         const quotes = await getMultipleStockQuotes(getRequestHandler(), ASX_20_SYMBOLS);
+        console.log(quotes);
         // Sort by market cap (approximated by price * volume for now)
         quotes.sort((a, b) => b.regularMarketPrice - a.regularMarketPrice);
         setStocks(quotes);

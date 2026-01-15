@@ -13,6 +13,8 @@ export interface StockQuote {
   fiftyTwoWeekHigh: number;
   fiftyTwoWeekLow: number;
   timezone: string;
+  sector?: string;
+  industry?: string;
 }
 
 export interface YahooFinanceChartResponse {
@@ -54,4 +56,19 @@ export interface YahooFinanceChartResult {
 export interface YahooFinanceError {
   code: string;
   description: string;
+}
+
+export interface YahooFinanceQuoteSummaryResponse {
+  quoteSummary: {
+    result: YahooFinanceQuoteSummaryResult[] | null;
+    error: YahooFinanceError | null;
+  };
+}
+
+export interface YahooFinanceQuoteSummaryResult {
+  assetProfile?: {
+    sector?: string;
+    industry?: string;
+    [key: string]: unknown;
+  };
 }
