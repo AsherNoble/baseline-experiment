@@ -1,0 +1,19 @@
+Resources:
+  leaderboardCacheTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: ${self:custom.deletionPolicy.${opt:stage}}
+    UpdateReplacePolicy: ${self:custom.updatePolicy.${opt:stage}}
+    Properties:
+      TableName: ${env:APP_NAME}-${opt:stage}-leaderboard-cache
+      AttributeDefinitions:
+        - AttributeName: cacheKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: cacheKey
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true

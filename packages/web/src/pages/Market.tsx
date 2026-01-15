@@ -38,7 +38,7 @@ const ASX_20_SYMBOLS = [
   'QBE',  // QBE Insurance
 ];
 
-const Stocks = (): JSX.Element => {
+const Market = (): JSX.Element => {
   const [stocks, setStocks] = useState<StockQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +62,7 @@ const Stocks = (): JSX.Element => {
         }
 
         const quotes = await getMultipleStockQuotes(getRequestHandler(), ASX_20_SYMBOLS);
+        console.log(quotes);
         // Sort by market cap (approximated by price * volume for now)
         quotes.sort((a, b) => b.regularMarketPrice - a.regularMarketPrice);
         setStocks(quotes);
@@ -111,7 +112,7 @@ const Stocks = (): JSX.Element => {
   };
 
   return (
-    <PageWrapper title="Stocks">
+    <PageWrapper title="Market">
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
         <div
           style={{
@@ -121,8 +122,8 @@ const Stocks = (): JSX.Element => {
             marginBottom: '1.5rem',
           }}
         >
-          <Link to="/dashboard" style={{ color: '#007bff', textDecoration: 'none' }}>
-            &larr; Dashboard
+          <Link to="/portfolio" style={{ color: '#007bff', textDecoration: 'none' }}>
+            &larr; Portfolio
           </Link>
         </div>
 
@@ -209,4 +210,4 @@ const Stocks = (): JSX.Element => {
   );
 };
 
-export default Stocks;
+export default Market;

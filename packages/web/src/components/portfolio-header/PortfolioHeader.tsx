@@ -1,8 +1,8 @@
 import React from 'react';
 import { TrendingUpIcon } from '../icons/Icons';
-import styles from './DashboardHeader.module.scss';
+import styles from './PortfolioHeader.module.scss';
 
-interface DashboardHeaderProps {
+interface PortfolioHeaderProps {
   totalValue: number;
   initialValue?: number;
   activeTab: 'portfolio' | 'market';
@@ -16,12 +16,12 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-const DashboardHeader = ({
+const PortfolioHeader = ({
   totalValue,
   initialValue = 100000,
   activeTab,
   onTabChange,
-}: DashboardHeaderProps): JSX.Element => {
+}: PortfolioHeaderProps): JSX.Element => {
   const dollarChange = totalValue - initialValue;
   const percentChange = initialValue > 0 ? (dollarChange / initialValue) * 100 : 0;
   const isPositive = dollarChange >= 0;
@@ -66,4 +66,4 @@ const DashboardHeader = ({
   );
 };
 
-export default DashboardHeader;
+export default PortfolioHeader;

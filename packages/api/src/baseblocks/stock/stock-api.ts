@@ -4,7 +4,7 @@ import createApp from '../../util/express-app';
 import serverless from 'serverless-http';
 import createAuthenticatedHandler from '../../util/create-authenticated-handler';
 import { RequestContext } from '../../util/request-context.type';
-import { getStockQuote, getMultipleStockQuotes } from './stock.service';
+import { getCachedStockQuote, getCachedMultipleStockQuotes } from '../quote/quote.service';
 import { portfolioService } from '../portfolio/portfolio.service';
 import { portfolioMapper } from '../portfolio/portfolio';
 import {
@@ -36,7 +36,7 @@ app.get('/stock/:symbol', async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    const quote = await getStockQuote(symbol);
+    const quote = await getCachedStockQuote(symbol);
     res.json(quote);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -60,7 +60,7 @@ app.post('/stock/quotes', async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    const quotes = await getMultipleStockQuotes(symbols);
+    const quotes = await getCachedMultipleStockQuotes(symbols);
     res.json(quotes);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -96,7 +96,7 @@ authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response): 
     }
 
     // Fetch current stock price
-    const stockQuote = await getStockQuote(symbol);
+    const stockQuote = await getCachedStockQuote(symbol);
     const totalCost = stockQuote.regularMarketPrice * quantity;
 
     // Check sufficient funds
@@ -165,7 +165,7 @@ authenticatedApp.post('/stock/buy', async (req: RequestContext, res: Response): 
 
     // Fetch current prices for all holdings to calculate total value
     const holdingsSymbols = allHoldings.map((h) => h.symbol);
-    const currentQuotes = await getMultipleStockQuotes(holdingsSymbols);
+    const currentQuotes = await getCachedMultipleStockQuotes(holdingsSymbols);
     const quotesMap = new Map(currentQuotes.map((q) => [q.symbol, q]));
 
     const totalHoldingsValue = allHoldings.reduce((sum, h) => {
@@ -241,7 +241,7 @@ authenticatedApp.post('/stock/sell', async (req: RequestContext, res: Response):
     }
 
     // Fetch current stock price
-    const stockQuote = await getStockQuote(symbol);
+    const stockQuote = await getCachedStockQuote(symbol);
     const totalProceeds = stockQuote.regularMarketPrice * quantity;
 
     // Update or delete holding
@@ -285,7 +285,7 @@ authenticatedApp.post('/stock/sell', async (req: RequestContext, res: Response):
     // Fetch current prices for all holdings to calculate total value
     const holdingsSymbols = allHoldings.map((h) => h.symbol);
     const currentQuotes = holdingsSymbols.length > 0
-      ? await getMultipleStockQuotes(holdingsSymbols)
+      ? await getCachedMultipleStockQuotes(holdingsSymbols)
       : [];
     const quotesMap = new Map(currentQuotes.map((q) => [q.symbol, q]));
 
