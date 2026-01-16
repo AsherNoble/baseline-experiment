@@ -153,7 +153,7 @@ const Portfolio = (): JSX.Element => {
     return (
       <PageWrapper title="Portfolio">
         <div className={styles.portfolio}>
-          <div className={styles.loading}>Loading...</div>
+          <div className={styles.loading}>Loading Portfolio...</div>
         </div>
       </PageWrapper>
     );

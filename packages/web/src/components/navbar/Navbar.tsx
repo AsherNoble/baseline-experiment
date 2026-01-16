@@ -1,29 +1,20 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TrendingUpIcon } from '../icons/Icons';
+import { MAIN_NAV_ROUTES, AppRoute } from '../../config/routes';
 import styles from './Navbar.module.scss';
 
-interface NavRoute {
-  label: string;
-  path: string;
+interface NavbarProps {
+  routes?: AppRoute[];
+  title?: string;
+  subtitle?: string;
 }
 
-const routes: NavRoute[] = [
-  {
-    label: 'Portfolio',
-    path: '/portfolio',
-  },
-  {
-    label: 'Market',
-    path: '/market',
-  },
-  {
-    label: 'Leaderboard',
-    path: '/leaderboard',
-  },
-];
-
-const Navbar = (): JSX.Element => {
+const Navbar = ({
+  routes = MAIN_NAV_ROUTES,
+  title = 'ASX Trading Simulator',
+  subtitle = 'Practice trading with virtual money',
+}: NavbarProps): JSX.Element => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -39,8 +30,8 @@ const Navbar = (): JSX.Element => {
               <TrendingUpIcon size={24} color="white" />
             </div>
             <div className={styles.titleSection}>
-              <h1 className={styles.title}>ASX Trading Simulator</h1>
-              <p className={styles.subtitle}>Practice trading with virtual money</p>
+              <h1 className={styles.title}>{title}</h1>
+              <p className={styles.subtitle}>{subtitle}</p>
             </div>
           </div>
         </div>
