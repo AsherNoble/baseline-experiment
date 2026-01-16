@@ -1,5 +1,8 @@
 .container {
   overflow-x: auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .table {
@@ -9,26 +12,29 @@
 
   th,
   td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   th {
-    background-color: #f5f5f5;
+    background-color: #fafafa;
     font-weight: 600;
-    color: #333;
+    color: #999;
     white-space: nowrap;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
   }
 
   tbody tr:hover {
-    background-color: #f9f9f9;
+    background-color: #fafafa;
   }
 }
 
 .symbol {
   font-weight: 600;
-  color: #007bff;
+  color: #1f2937;
+  font-size: 0.875rem;
 }
 
 .name {
@@ -36,6 +42,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #4b5563;
 }
 
 .alignRight {
@@ -47,25 +54,52 @@
 }
 
 .positive {
-  color: #28a745;
+  color: #22c55e;
 }
 
 .negative {
-  color: #dc3545;
+  color: #ef4444;
 }
 
 .buyButton {
-  padding: 0.4rem 1rem;
-  background-color: #28a745;
+  padding: 0.5rem 1.5rem;
+  background-color: #22c55e;
   color: #fff;
   border: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   transition: background-color 150ms ease;
 
   &:hover {
-    background-color: #218838;
+    background-color: #16a34a;
   }
+}
+
+.changeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.arrow {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.changeText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.changePercent {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.changeDollar {
+  font-size: 0.75rem;
+  opacity: 0.9;
 }
