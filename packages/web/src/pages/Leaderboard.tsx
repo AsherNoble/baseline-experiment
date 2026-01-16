@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { AxiosRequestConfig } from 'axios';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
@@ -54,24 +53,12 @@ const Leaderboard = (): JSX.Element => {
   return (
     <PageWrapper title="Leaderboard">
       <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-          }}
-        >
-          <h1>Leaderboard</h1>
-          <Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>
-            &larr; Home
-          </Link>
-        </div>
+          <h1 style={{ marginBottom: '1rem' }}>Leaderboard</h1>
 
-        <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-          Top traders ranked by total portfolio value. All users start with
-          $50,000.
-        </p>
+          <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+            Top traders ranked by total portfolio value. All users start with
+            $50,000.
+          </p>
 
         {error ? (
           <div
@@ -85,9 +72,9 @@ const Leaderboard = (): JSX.Element => {
           >
             <p>{error}</p>
           </div>
-        ) : (
-          <LeaderboardTable entries={entries} loading={loading} />
-        )}
+      ) : (
+        <LeaderboardTable entries={entries} loading={loading} />
+      )}
       </div>
     </PageWrapper>
   );

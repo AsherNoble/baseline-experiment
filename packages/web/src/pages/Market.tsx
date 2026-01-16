@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
@@ -13,6 +12,7 @@ import { Portfolio } from '@baseline/types/portfolio';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
 import StockList from '../components/stock-list/StockList';
 import BuyModal from '../components/buy-modal/BuyModal';
+import { invalidateNavbarCache } from '../components/navbar/Navbar';
 
 // ASX 20 stocks - the largest companies on the Australian Stock Exchange
 const ASX_20_SYMBOLS = [
@@ -69,7 +69,7 @@ const Market = (): JSX.Element => {
 
         // Fetch portfolio for buy functionality
         const portfolioData = await getMyPortfolio(getRequestHandler());
-        if (!portfolioData.isAdmin && portfolioData.portfolio) {
+        if (portfolioData.portfolio) {
           setPortfolio(portfolioData.portfolio);
         }
       } catch (err) {
@@ -99,6 +99,9 @@ const Market = (): JSX.Element => {
       // Update local portfolio state
       setPortfolio(result.portfolio);
 
+      // Invalidate navbar cache to force refresh on next page navigation
+      invalidateNavbarCache();
+
       // Show success message
       alert(`Successfully purchased ${quantity} shares of ${symbol}!`);
 
@@ -114,20 +117,7 @@ const Market = (): JSX.Element => {
   return (
     <PageWrapper title="Market">
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-          }}
-        >
-          <Link to="/portfolio" style={{ color: '#007bff', textDecoration: 'none' }}>
-            &larr; Portfolio
-          </Link>
-        </div>
-
-        <h1 style={{ marginBottom: '0.5rem' }}>ASX Stocks</h1>
+          <h1 style={{ marginBottom: '0.5rem' }}>ASX Stocks</h1>
         <p style={{ color: '#666', marginBottom: '2rem' }}>
           Browse and trade the top 20 ASX-listed companies. Prices update on page reload.
         </p>
@@ -178,19 +168,19 @@ const Market = (): JSX.Element => {
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: '2rem',
-            padding: '1rem',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            color: '#666',
-          }}
-        >
-          <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
-          This is a simulation game and does not involve real money.
-        </div>
+          <div
+            style={{
+              marginTop: '2rem',
+              padding: '1rem',
+              backgroundColor: '#f0f0f0',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              color: '#666',
+            }}
+          >
+            <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
+            This is a simulation game and does not involve real money.
+          </div>
 
         {/* Buy Modal */}
         {selectedStock && portfolio && (

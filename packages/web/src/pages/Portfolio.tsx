@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLoaderData } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
   createRequestHandler,
   getRequestHandler,
 } from '@baseline/client-api/request-handler';
-import { getMyPortfolio, MyPortfolioResponse } from '@baseline/client-api/portfolio';
+import { getMyPortfolio, PortfolioResponse } from '@baseline/client-api/portfolio';
 import { Portfolio as PortfolioType } from '@baseline/types/portfolio';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
@@ -15,24 +15,20 @@ import { getMyHoldings } from '@baseline/client-api/holding';
 import { getMultipleStockQuotes, sellStock } from '@baseline/client-api/stock';
 import { getMyTransactions } from '@baseline/client-api/transaction';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
-import PortfolioHeader from '../components/portfolio-header/PortfolioHeader';
 import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
 import SellModal from '../components/sell-modal/SellModal';
+import { invalidateNavbarCache } from '../components/navbar/Navbar';
 import styles from './Portfolio.module.scss';
 
 interface PortfolioLoaderData {
   userId: string;
 }
 
-const INITIAL_PORTFOLIO_VALUE = 50000;
-
 const Portfolio = (): JSX.Element => {
   useLoaderData() as PortfolioLoaderData | undefined;
-  const navigate = useNavigate();
 
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(
@@ -44,7 +40,6 @@ const Portfolio = (): JSX.Element => {
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [selectedQuote, setSelectedQuote] = useState<StockQuote | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'market'>('portfolio');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,12 +56,10 @@ const Portfolio = (): JSX.Element => {
           );
         }
 
-        const response: MyPortfolioResponse = await getMyPortfolio(getRequestHandler());
-        setIsAdmin(response.isAdmin);
+        const response: PortfolioResponse = await getMyPortfolio(getRequestHandler());
         setPortfolio(response.portfolio);
 
-        // Fetch holdings and transactions if not admin
-        if (!response.isAdmin && response.portfolio) {
+        if (response.portfolio) {
           const [holdingsData, transactionsData] = await Promise.all([
             getMyHoldings(getRequestHandler()),
             getMyTransactions(getRequestHandler()),
@@ -97,14 +90,6 @@ const Portfolio = (): JSX.Element => {
     void fetchData();
   }, []);
 
-  const handleTabChange = (tab: 'portfolio' | 'market') => {
-    if (tab === 'market') {
-      navigate('/market');
-    } else {
-      setActiveTab(tab);
-    }
-  };
-
   const handleSell = (holding: Holding, stockQuote: StockQuote) => {
     setSelectedHolding(holding);
     setSelectedQuote(stockQuote);
@@ -117,6 +102,9 @@ const Portfolio = (): JSX.Element => {
 
       // Update local portfolio state
       setPortfolio(result.portfolio);
+
+      // Invalidate navbar cache to force refresh
+      invalidateNavbarCache();
 
       // Refresh holdings and transactions
       const [holdingsData, transactionsData] = await Promise.all([
@@ -156,14 +144,11 @@ const Portfolio = (): JSX.Element => {
     return sum + holding.quantity * currentPrice;
   }, 0);
 
-  // Calculate total portfolio value
-  const totalPortfolioValue = (portfolio?.cash || 0) + holdingsValue;
-
   if (loading) {
     return (
       <PageWrapper title="Portfolio">
         <div className={styles.portfolio}>
-          <div className={styles.loading}>Loading...</div>
+          <div className={styles.loading}>Loading Portfolio...</div>
         </div>
       </PageWrapper>
     );
@@ -176,22 +161,6 @@ const Portfolio = (): JSX.Element => {
           <div className={styles.content}>
             <div className={styles.error}>
               <p>{error}</p>
-            </div>
-          </div>
-        </div>
-      </PageWrapper>
-    );
-  }
-
-  if (isAdmin) {
-    return (
-      <PageWrapper title="Portfolio">
-        <div className={styles.portfolio}>
-          <div className={styles.content}>
-            <div className={styles.adminView}>
-              <h2>Administrator</h2>
-              <p>You are logged in as an administrator.</p>
-              <p>Use the admin portal to manage users and portfolios.</p>
             </div>
           </div>
         </div>
@@ -216,13 +185,6 @@ const Portfolio = (): JSX.Element => {
   return (
     <PageWrapper title="Portfolio">
       <div className={styles.portfolio}>
-        <PortfolioHeader
-          totalValue={totalPortfolioValue}
-          initialValue={INITIAL_PORTFOLIO_VALUE}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-
         <div className={styles.content}>
           <StatsCards
             availableCash={portfolio.cash}
@@ -244,7 +206,6 @@ const Portfolio = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Sell Modal */}
         {selectedHolding && selectedQuote && (
           <SellModal
             holding={selectedHolding}

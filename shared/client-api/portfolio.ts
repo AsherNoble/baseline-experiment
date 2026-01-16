@@ -2,16 +2,15 @@ import { Portfolio } from '@baseline/types/portfolio';
 import { User } from '@baseline/types/user';
 import { RequestHandler } from './request-handler';
 
-export interface MyPortfolioResponse {
-  isAdmin: boolean;
+export interface PortfolioResponse {
   portfolio: Portfolio | null;
   user: User | null;
 }
 
 export const getMyPortfolio = async (
   requestHandler: RequestHandler,
-): Promise<MyPortfolioResponse> => {
-  const response = await requestHandler.request<MyPortfolioResponse>({
+): Promise<PortfolioResponse> => {
+  const response = await requestHandler.request<PortfolioResponse>({
     method: 'GET',
     url: `portfolio/me`,
     hasAuthentication: true,
