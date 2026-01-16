@@ -19,6 +19,7 @@ import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
 import SellModal from '../components/sell-modal/SellModal';
+import { invalidateNavbarCache } from '../components/navbar/Navbar';
 import styles from './Portfolio.module.scss';
 
 interface PortfolioLoaderData {
@@ -104,6 +105,9 @@ const Portfolio = (): JSX.Element => {
 
       // Update local portfolio state
       setPortfolio(result.portfolio);
+
+      // Invalidate navbar cache to force refresh
+      invalidateNavbarCache();
 
       // Refresh holdings and transactions
       const [holdingsData, transactionsData] = await Promise.all([

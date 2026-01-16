@@ -23,6 +23,22 @@ interface NavbarProps {
 }
 
 const INITIAL_PORTFOLIO_VALUE = 50000;
+const CACHE_DURATION = 30000; // 30 seconds
+
+interface CachedData {
+  portfolio: Portfolio | null;
+  holdings: Holding[];
+  stockQuotes: Map<string, StockQuote>;
+  timestamp: number;
+}
+
+// Module-level cache that persists between component mounts
+let dataCache: CachedData | null = null;
+
+// Export function to invalidate cache (useful after trades)
+export const invalidateNavbarCache = () => {
+  dataCache = null;
+};
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat('en-AU', {
@@ -42,10 +58,22 @@ const Navbar = ({
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(new Map());
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPortfolioData = async () => {
       try {
+        // Check if we have valid cached data
+        const now = Date.now();
+        if (dataCache && now - dataCache.timestamp < CACHE_DURATION) {
+          // Use cached data
+          setPortfolio(dataCache.portfolio);
+          setHoldings(dataCache.holdings);
+          setStockQuotes(dataCache.stockQuotes);
+          setIsLoading(false);
+          return;
+        }
+
         if (!getRequestHandler()) {
           createRequestHandler(
             async (config: AxiosRequestConfig): Promise<AxiosRequestConfig> => {
@@ -59,23 +87,37 @@ const Navbar = ({
 
         const portfolioData = await getMyPortfolio(getRequestHandler());
         if (!portfolioData.isAdmin && portfolioData.portfolio) {
-          setPortfolio(portfolioData.portfolio);
-
           const holdingsData = await getMyHoldings(getRequestHandler());
-          setHoldings(holdingsData);
 
+          let quotesMap = new Map<string, StockQuote>();
           if (holdingsData.length > 0) {
             const holdingSymbols = holdingsData.map((h) => h.symbol);
             const holdingQuotes = await getMultipleStockQuotes(
               getRequestHandler(),
               holdingSymbols,
             );
-            const quotesMap = new Map(holdingQuotes.map((q) => [q.symbol, q]));
-            setStockQuotes(quotesMap);
+            quotesMap = new Map(holdingQuotes.map((q) => [q.symbol, q]));
           }
+
+          // Update state
+          setPortfolio(portfolioData.portfolio);
+          setHoldings(holdingsData);
+          setStockQuotes(quotesMap);
+
+          // Cache the data
+          dataCache = {
+            portfolio: portfolioData.portfolio,
+            holdings: holdingsData,
+            stockQuotes: quotesMap,
+            timestamp: Date.now(),
+          };
+
+          // All data has been fetched
+          setIsLoading(false);
         }
       } catch (err) {
         console.error('Failed to fetch portfolio data:', err);
+        setIsLoading(false);
       }
     };
 
@@ -112,12 +154,21 @@ const Navbar = ({
           </div>
           <div className={styles.portfolioValue}>
             <span className={styles.valueLabel}>Total Portfolio Value</span>
-            <span className={styles.valueAmount}>{formatCurrency(totalPortfolioValue)}</span>
-            <span className={`${styles.valueChange} ${isPositive ? styles.positive : styles.negative}`}>
-              {isPositive ? '+' : ''}
-              {percentChange.toFixed(2)}% ({isPositive ? '+' : ''}
-              {formatCurrency(dollarChange)})
-            </span>
+            {isLoading ? (
+              <>
+                <span className={styles.loadingAmount}>Calculating...</span>
+                <span className={styles.loadingChange}>Loading holdings data</span>
+              </>
+            ) : (
+              <>
+                <span className={styles.valueAmount}>{formatCurrency(totalPortfolioValue)}</span>
+                <span className={`${styles.valueChange} ${isPositive ? styles.positive : styles.negative}`}>
+                  {isPositive ? '+' : ''}
+                  {percentChange.toFixed(2)}% ({isPositive ? '+' : ''}
+                  {formatCurrency(dollarChange)})
+                </span>
+              </>
+            )}
           </div>
         </div>
         <div className={styles.tabs}>

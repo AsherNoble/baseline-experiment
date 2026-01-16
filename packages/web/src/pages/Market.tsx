@@ -12,6 +12,7 @@ import { Portfolio } from '@baseline/types/portfolio';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
 import StockList from '../components/stock-list/StockList';
 import BuyModal from '../components/buy-modal/BuyModal';
+import { invalidateNavbarCache } from '../components/navbar/Navbar';
 
 // ASX 20 stocks - the largest companies on the Australian Stock Exchange
 const ASX_20_SYMBOLS = [
@@ -97,6 +98,9 @@ const Market = (): JSX.Element => {
 
       // Update local portfolio state
       setPortfolio(result.portfolio);
+
+      // Invalidate navbar cache to force refresh on next page navigation
+      invalidateNavbarCache();
 
       // Show success message
       alert(`Successfully purchased ${quantity} shares of ${symbol}!`);
