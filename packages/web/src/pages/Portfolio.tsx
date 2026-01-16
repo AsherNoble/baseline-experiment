@@ -44,7 +44,7 @@ const Portfolio = (): JSX.Element => {
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [selectedQuote, setSelectedQuote] = useState<StockQuote | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'market'>('portfolio');
+  const [activeTab, setActiveTab] = useState<'portfolio' | 'market' | 'leaderboard'>('portfolio');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,9 +97,11 @@ const Portfolio = (): JSX.Element => {
     void fetchData();
   }, []);
 
-  const handleTabChange = (tab: 'portfolio' | 'market') => {
+  const handleTabChange = (tab: 'portfolio' | 'market' | 'leaderboard') => {
     if (tab === 'market') {
       navigate('/market');
+    } else if (tab === 'leaderboard') {
+      navigate('/leaderboard');
     } else {
       setActiveTab(tab);
     }

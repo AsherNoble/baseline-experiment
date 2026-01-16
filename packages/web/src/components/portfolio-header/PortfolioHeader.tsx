@@ -16,6 +16,12 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
+const tabs: Array<{ id: 'portfolio' | 'market' | 'leaderboard'; label: string }> = [
+  { id: 'portfolio', label: 'Portfolio' },
+  { id: 'market', label: 'Market' },
+  { id: 'leaderboard', label: 'Leaderboard' },
+];
+
 const PortfolioHeader = ({
   totalValue,
   initialValue = 100000,
@@ -49,24 +55,15 @@ const PortfolioHeader = ({
         </div>
       </div>
       <div className={styles.tabs}>
-        <button
-          className={`${styles.tab} ${activeTab === 'portfolio' ? styles.active : ''}`}
-          onClick={() => onTabChange('portfolio')}
-        >
-          Portfolio
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'market' ? styles.active : ''}`}
-          onClick={() => onTabChange('market')}
-        >
-          Market
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'leaderboard' ? styles.active : ''}`}
-          onClick={() => onTabChange('leaderboard')}
-        >
-          Leaderboard
-        </button>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
+            onClick={() => onTabChange(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
@@ -10,7 +10,10 @@ import { getMultipleStockQuotes, buyStock } from '@baseline/client-api/stock';
 import { getMyPortfolio } from '@baseline/client-api/portfolio';
 import { StockQuote } from '@baseline/types/stock';
 import { Portfolio } from '@baseline/types/portfolio';
+import { getMyHoldings } from '@baseline/client-api/holding';
+import { Holding } from '@baseline/types/holding';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
+import PortfolioHeader from '../components/portfolio-header/PortfolioHeader';
 import StockList from '../components/stock-list/StockList';
 import BuyModal from '../components/buy-modal/BuyModal';
 
@@ -38,13 +41,18 @@ const ASX_20_SYMBOLS = [
   'QBE',  // QBE Insurance
 ];
 
+const INITIAL_PORTFOLIO_VALUE = 50000;
+
 const Market = (): JSX.Element => {
+  const navigate = useNavigate();
   const [stocks, setStocks] = useState<StockQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStock, setSelectedStock] = useState<StockQuote | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(new Map());
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -71,6 +79,21 @@ const Market = (): JSX.Element => {
         const portfolioData = await getMyPortfolio(getRequestHandler());
         if (!portfolioData.isAdmin && portfolioData.portfolio) {
           setPortfolio(portfolioData.portfolio);
+
+          // Fetch holdings for portfolio value calculation
+          const holdingsData = await getMyHoldings(getRequestHandler());
+          setHoldings(holdingsData);
+
+          // Create quotes map for holdings
+          if (holdingsData.length > 0) {
+            const holdingSymbols = holdingsData.map((h) => h.symbol);
+            const holdingQuotes = await getMultipleStockQuotes(
+              getRequestHandler(),
+              holdingSymbols,
+            );
+            const quotesMap = new Map(holdingQuotes.map((q) => [q.symbol, q]));
+            setStockQuotes(quotesMap);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch stocks:', err);
@@ -82,6 +105,15 @@ const Market = (): JSX.Element => {
 
     void fetchStocks();
   }, []);
+
+  const handleTabChange = (tab: 'portfolio' | 'market' | 'leaderboard') => {
+    if (tab === 'portfolio') {
+      navigate('/portfolio');
+    } else if (tab === 'leaderboard') {
+      navigate('/leaderboard');
+    }
+    // Stay on market page if market is selected
+  };
 
   const handleBuy = (stock: StockQuote) => {
     if (!portfolio) {
@@ -111,23 +143,27 @@ const Market = (): JSX.Element => {
     }
   };
 
+  // Calculate holdings value using current stock prices
+  const holdingsValue = holdings.reduce((sum, holding) => {
+    const currentPrice = stockQuotes.get(holding.symbol)?.regularMarketPrice || 0;
+    return sum + holding.quantity * currentPrice;
+  }, 0);
+
+  // Calculate total portfolio value
+  const totalPortfolioValue = (portfolio?.cash || 0) + holdingsValue;
+
   return (
     <PageWrapper title="Market">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-          }}
-        >
-          <Link to="/portfolio" style={{ color: '#007bff', textDecoration: 'none' }}>
-            &larr; Portfolio
-          </Link>
-        </div>
+      <div style={{ padding: '0', maxWidth: '100%', margin: '0' }}>
+        <PortfolioHeader
+          totalValue={totalPortfolioValue}
+          initialValue={INITIAL_PORTFOLIO_VALUE}
+          activeTab="market"
+          onTabChange={handleTabChange}
+        />
 
-        <h1 style={{ marginBottom: '0.5rem' }}>ASX Stocks</h1>
+        <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+          <h1 style={{ marginBottom: '0.5rem' }}>ASX Stocks</h1>
         <p style={{ color: '#666', marginBottom: '2rem' }}>
           Browse and trade the top 20 ASX-listed companies. Prices update on page reload.
         </p>
@@ -178,33 +214,34 @@ const Market = (): JSX.Element => {
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: '2rem',
-            padding: '1rem',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            color: '#666',
-          }}
-        >
-          <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
-          This is a simulation game and does not involve real money.
-        </div>
-
-        {/* Buy Modal */}
-        {selectedStock && portfolio && (
-          <BuyModal
-            stock={selectedStock}
-            portfolio={portfolio}
-            isOpen={modalOpen}
-            onClose={() => {
-              setModalOpen(false);
-              setSelectedStock(null);
+          <div
+            style={{
+              marginTop: '2rem',
+              padding: '1rem',
+              backgroundColor: '#f0f0f0',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              color: '#666',
             }}
-            onConfirm={handleConfirmPurchase}
-          />
-        )}
+          >
+            <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
+            This is a simulation game and does not involve real money.
+          </div>
+
+          {/* Buy Modal */}
+          {selectedStock && portfolio && (
+            <BuyModal
+              stock={selectedStock}
+              portfolio={portfolio}
+              isOpen={modalOpen}
+              onClose={() => {
+                setModalOpen(false);
+                setSelectedStock(null);
+              }}
+              onConfirm={handleConfirmPurchase}
+            />
+          )}
+        </div>
       </div>
     </PageWrapper>
   );
