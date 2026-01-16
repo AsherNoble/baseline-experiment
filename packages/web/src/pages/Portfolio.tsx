@@ -15,7 +15,6 @@ import { getMyHoldings } from '@baseline/client-api/holding';
 import { getMultipleStockQuotes, sellStock } from '@baseline/client-api/stock';
 import { getMyTransactions } from '@baseline/client-api/transaction';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
-import PortfolioValue from '../components/portfolio-value/PortfolioValue';
 import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
@@ -25,8 +24,6 @@ import styles from './Portfolio.module.scss';
 interface PortfolioLoaderData {
   userId: string;
 }
-
-const INITIAL_PORTFOLIO_VALUE = 50000;
 
 const Portfolio = (): JSX.Element => {
   useLoaderData() as PortfolioLoaderData | undefined;
@@ -146,9 +143,6 @@ const Portfolio = (): JSX.Element => {
     return sum + holding.quantity * currentPrice;
   }, 0);
 
-  // Calculate total portfolio value
-  const totalPortfolioValue = (portfolio?.cash || 0) + holdingsValue;
-
   if (loading) {
     return (
       <PageWrapper title="Portfolio">
@@ -173,22 +167,6 @@ const Portfolio = (): JSX.Element => {
     );
   }
 
-  if (isAdmin) {
-    return (
-      <PageWrapper title="Portfolio">
-        <div className={styles.portfolio}>
-          <div className={styles.content}>
-            <div className={styles.adminView}>
-              <h2>Administrator</h2>
-              <p>You are logged in as an administrator.</p>
-              <p>Use the admin portal to manage users and portfolios.</p>
-            </div>
-          </div>
-        </div>
-      </PageWrapper>
-    );
-  }
-
   if (!portfolio) {
     return (
       <PageWrapper title="Portfolio">
@@ -206,11 +184,6 @@ const Portfolio = (): JSX.Element => {
   return (
     <PageWrapper title="Portfolio">
       <div className={styles.portfolio}>
-        <PortfolioValue
-          totalValue={totalPortfolioValue}
-          initialValue={INITIAL_PORTFOLIO_VALUE}
-        />
-
         <div className={styles.content}>
           <StatsCards
             availableCash={portfolio.cash}
@@ -232,7 +205,6 @@ const Portfolio = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Sell Modal */}
         {selectedHolding && selectedQuote && (
           <SellModal
             holding={selectedHolding}

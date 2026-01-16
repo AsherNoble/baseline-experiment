@@ -1,4 +1,6 @@
 $blue: #007bff;
+$green: #28a745;
+$red: #dc3545;
 
 .spacer {
   height: 140px;
@@ -15,7 +17,15 @@ $blue: #007bff;
 }
 
 .topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: 1.5rem 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 }
 
 .logoSection {
@@ -78,5 +88,39 @@ $blue: #007bff;
     color: $blue;
     border-bottom-color: $blue;
     font-weight: 500;
+  }
+}
+
+.portfolioValue {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    text-align: left;
+  }
+}
+
+.valueLabel {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.valueAmount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0.25rem 0;
+}
+
+.valueChange {
+  font-size: 0.9rem;
+
+  &.positive {
+    color: $green;
+  }
+
+  &.negative {
+    color: $red;
   }
 }
