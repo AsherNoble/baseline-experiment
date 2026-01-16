@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import Navbar from '../navbar/Navbar';
 import Footer from '../footer/Footer';
 
 interface Props {
@@ -15,6 +16,7 @@ const PageWrapper = (props: Props): JSX.Element => {
       <Helmet>
         <title>{title ? `${title} | Baseline Core` : 'Baseline Core'}</title>
       </Helmet>
+      <Navbar />
       {children}
       <Footer />
     </>

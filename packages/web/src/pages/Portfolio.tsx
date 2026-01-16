@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLoaderData } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { AxiosRequestConfig } from 'axios';
 import {
@@ -15,7 +15,7 @@ import { getMyHoldings } from '@baseline/client-api/holding';
 import { getMultipleStockQuotes, sellStock } from '@baseline/client-api/stock';
 import { getMyTransactions } from '@baseline/client-api/transaction';
 import PageWrapper from '../components/page-wrapper/PageWrapper';
-import PortfolioHeader from '../components/portfolio-header/PortfolioHeader';
+import PortfolioValue from '../components/portfolio-value/PortfolioValue';
 import StatsCards from '../components/stats-cards/StatsCards';
 import HoldingsTable from '../components/holdings-table/HoldingsTable';
 import RecentTransactions from '../components/recent-transactions/RecentTransactions';
@@ -30,7 +30,6 @@ const INITIAL_PORTFOLIO_VALUE = 50000;
 
 const Portfolio = (): JSX.Element => {
   useLoaderData() as PortfolioLoaderData | undefined;
-  const navigate = useNavigate();
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
@@ -44,7 +43,6 @@ const Portfolio = (): JSX.Element => {
   const [selectedHolding, setSelectedHolding] = useState<Holding | null>(null);
   const [selectedQuote, setSelectedQuote] = useState<StockQuote | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'market' | 'leaderboard'>('portfolio');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,16 +94,6 @@ const Portfolio = (): JSX.Element => {
 
     void fetchData();
   }, []);
-
-  const handleTabChange = (tab: 'portfolio' | 'market' | 'leaderboard') => {
-    if (tab === 'market') {
-      navigate('/market');
-    } else if (tab === 'leaderboard') {
-      navigate('/leaderboard');
-    } else {
-      setActiveTab(tab);
-    }
-  };
 
   const handleSell = (holding: Holding, stockQuote: StockQuote) => {
     setSelectedHolding(holding);
@@ -218,11 +206,9 @@ const Portfolio = (): JSX.Element => {
   return (
     <PageWrapper title="Portfolio">
       <div className={styles.portfolio}>
-        <PortfolioHeader
+        <PortfolioValue
           totalValue={totalPortfolioValue}
           initialValue={INITIAL_PORTFOLIO_VALUE}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
         />
 
         <div className={styles.content}>
