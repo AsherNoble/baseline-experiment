@@ -69,7 +69,7 @@ const Market = (): JSX.Element => {
 
         // Fetch portfolio for buy functionality
         const portfolioData = await getMyPortfolio(getRequestHandler());
-        if (!portfolioData.isAdmin && portfolioData.portfolio) {
+        if (portfolioData.portfolio) {
           setPortfolio(portfolioData.portfolio);
         }
       } catch (err) {

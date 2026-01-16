@@ -6,7 +6,7 @@ import {
   createRequestHandler,
   getRequestHandler,
 } from '@baseline/client-api/request-handler';
-import { getMyPortfolio, MyPortfolioResponse } from '@baseline/client-api/portfolio';
+import { getMyPortfolio, PortfolioResponse } from '@baseline/client-api/portfolio';
 import { Portfolio as PortfolioType } from '@baseline/types/portfolio';
 import { Holding } from '@baseline/types/holding';
 import { StockQuote } from '@baseline/types/stock';
@@ -29,7 +29,6 @@ interface PortfolioLoaderData {
 const Portfolio = (): JSX.Element => {
   useLoaderData() as PortfolioLoaderData | undefined;
 
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [stockQuotes, setStockQuotes] = useState<Map<string, StockQuote>>(
@@ -57,12 +56,10 @@ const Portfolio = (): JSX.Element => {
           );
         }
 
-        const response: MyPortfolioResponse = await getMyPortfolio(getRequestHandler());
-        setIsAdmin(response.isAdmin);
+        const response: PortfolioResponse = await getMyPortfolio(getRequestHandler());
         setPortfolio(response.portfolio);
 
-        // Fetch holdings and transactions if not admin
-        if (!response.isAdmin && response.portfolio) {
+        if (response.portfolio) {
           const [holdingsData, transactionsData] = await Promise.all([
             getMyHoldings(getRequestHandler()),
             getMyTransactions(getRequestHandler()),

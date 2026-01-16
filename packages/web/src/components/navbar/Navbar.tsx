@@ -86,7 +86,7 @@ const Navbar = ({
         }
 
         const portfolioData = await getMyPortfolio(getRequestHandler());
-        if (!portfolioData.isAdmin && portfolioData.portfolio) {
+        if (portfolioData.portfolio) {
           const holdingsData = await getMyHoldings(getRequestHandler());
 
           let quotesMap = new Map<string, StockQuote>();
