@@ -114,14 +114,32 @@ const Market = (): JSX.Element => {
     }
   };
 
+  // Calculate top gainers and losers
+  const getTopGainersAndLosers = () => {
+    const stocksWithChange = stocks.map(stock => {
+      const change = stock.regularMarketPrice - stock.previousClose;
+      const changePercent = (change / stock.previousClose) * 100;
+      return { ...stock, change, changePercent };
+    });
+
+    const gainers = stocksWithChange
+      .filter(s => s.changePercent > 0)
+      .sort((a, b) => b.changePercent - a.changePercent)
+      .slice(0, 5);
+
+    const losers = stocksWithChange
+      .filter(s => s.changePercent < 0)
+      .sort((a, b) => a.changePercent - b.changePercent)
+      .slice(0, 5);
+
+    return { gainers, losers };
+  };
+
+  const { gainers, losers } = stocks.length > 0 ? getTopGainersAndLosers() : { gainers: [], losers: [] };
+
   return (
     <PageWrapper title="Market">
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-          <h1 style={{ marginBottom: '0.5rem' }}>ASX Stocks</h1>
-        <p style={{ color: '#666', marginBottom: '2rem' }}>
-          Browse and trade the top 20 ASX-listed companies. Prices update on page reload.
-        </p>
-
+      <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <p style={{ color: '#666' }}>Loading stock prices...</p>
@@ -153,7 +171,118 @@ const Market = (): JSX.Element => {
             </button>
           </div>
         ) : stocks.length > 0 ? (
-          <StockList stocks={stocks} onBuy={handleBuy} />
+          <>
+            {/* Top Gainers and Losers Section */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }}>
+              {/* Top Gainers */}
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <h2 style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span style={{ color: '#22c55e' }}>📈</span>
+                  Top Gainers
+                </h2>
+                <div>
+                  {gainers.map(stock => (
+                    <div
+                      key={stock.symbol}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '0.75rem 0',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
+                          {stock.symbol.replace('.AX', '')}
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#666' }}>
+                          ${stock.regularMarketPrice.toFixed(2)}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: '#22c55e', fontWeight: '600' }}>
+                          +{stock.changePercent.toFixed(2)}%
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#22c55e' }}>
+                          +${stock.change.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Top Losers */}
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <h2 style={{
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <span style={{ color: '#ef4444' }}>📉</span>
+                  Top Losers
+                </h2>
+                <div>
+                  {losers.map(stock => (
+                    <div
+                      key={stock.symbol}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '0.75rem 0',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
+                          {stock.symbol.replace('.AX', '')}
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#666' }}>
+                          ${stock.regularMarketPrice.toFixed(2)}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: '#ef4444', fontWeight: '600' }}>
+                          {stock.changePercent.toFixed(2)}%
+                        </div>
+                        <div style={{ fontSize: '0.875rem', color: '#ef4444' }}>
+                          ${stock.change.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Stock Table */}
+            <StockList stocks={stocks} onBuy={handleBuy} />
+          </>
         ) : (
           <div
             style={{
@@ -167,20 +296,6 @@ const Market = (): JSX.Element => {
             <p>No stock data available.</p>
           </div>
         )}
-
-          <div
-            style={{
-              marginTop: '2rem',
-              padding: '1rem',
-              backgroundColor: '#f0f0f0',
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              color: '#666',
-            }}
-          >
-            <strong>Note:</strong> Stock prices are provided by Yahoo Finance and may be delayed.
-            This is a simulation game and does not involve real money.
-          </div>
 
         {/* Buy Modal */}
         {selectedStock && portfolio && (

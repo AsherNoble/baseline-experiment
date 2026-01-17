@@ -140,7 +140,6 @@ const Navbar = ({
 
   return (
     <>
-      <div className={styles.spacer} />
       <div className={styles.navbar}>
         <div className={styles.topRow}>
           <div className={styles.logoSection}>

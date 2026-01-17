@@ -36,13 +36,12 @@ const StockList = ({ stocks, onBuy }: StockListProps): JSX.Element => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Code</th>
-            <th>Company</th>
-            <th className={styles.alignRight}>Price</th>
-            <th className={styles.alignRight}>Change</th>
-            <th className={styles.alignRight}>Day Range</th>
-            <th className={styles.alignRight}>Volume</th>
-            {onBuy && <th className={styles.alignCenter}>Action</th>}
+            <th>SYMBOL</th>
+            <th>NAME</th>
+            <th className={styles.alignRight}>PRICE</th>
+            <th>CHANGE</th>
+            <th className={styles.alignRight}>VOLUME</th>
+            {onBuy && <th className={styles.alignCenter}>ACTION</th>}
           </tr>
         </thead>
         <tbody>
@@ -55,11 +54,18 @@ const StockList = ({ stocks, onBuy }: StockListProps): JSX.Element => {
                 <td className={styles.symbol}>{stock.symbol.replace('.AX', '')}</td>
                 <td className={styles.name}>{stock.shortName}</td>
                 <td className={styles.alignRight}>{formatCurrency(stock.regularMarketPrice)}</td>
-                <td className={`${styles.alignRight} ${isPositive ? styles.positive : styles.negative}`}>
-                  {isPositive ? '+' : ''}{formatCurrency(change.value)} ({isPositive ? '+' : ''}{change.percent.toFixed(2)}%)
-                </td>
-                <td className={styles.alignRight}>
-                  {formatCurrency(stock.regularMarketDayLow)} - {formatCurrency(stock.regularMarketDayHigh)}
+                <td className={isPositive ? styles.positive : styles.negative}>
+                  <div className={styles.changeContainer}>
+                    <span className={styles.arrow}>{isPositive ? '↗' : '↘'}</span>
+                    <div className={styles.changeText}>
+                      <div className={styles.changePercent}>
+                        {isPositive ? '+' : ''}{change.percent.toFixed(2)}%
+                      </div>
+                      <div className={styles.changeDollar}>
+                        {isPositive ? '+' : ''}${Math.abs(change.value).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
                 </td>
                 <td className={styles.alignRight}>{formatVolume(stock.regularMarketVolume)}</td>
                 {onBuy && (
