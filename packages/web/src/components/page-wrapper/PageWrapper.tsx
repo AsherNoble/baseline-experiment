@@ -1,7 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import Navbar from '../navbar/Navbar';
-import Footer from '../footer/Footer';
 
 interface Props {
   children: JSX.Element;
@@ -18,7 +17,6 @@ const PageWrapper = (props: Props): JSX.Element => {
       </Helmet>
       <Navbar />
       {children}
-      <Footer />
     </>
   );
 };
